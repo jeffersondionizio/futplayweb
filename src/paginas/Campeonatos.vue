@@ -33,6 +33,7 @@ onMounted(carregar)
   <section class="secao py-10">
     <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <h1 class="text-3xl font-extrabold">{{ t('campeonatos.titulo') }}</h1>
+      <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-campeonato' }" class="botao-primario">+ {{ t('criar.campeonato') }}</RouterLink>
       <div class="flex gap-2" role="tablist">
         <button
           v-for="opcao in (['descobrir', 'meus'] as const)" :key="opcao" type="button" role="tab"

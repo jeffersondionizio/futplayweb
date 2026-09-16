@@ -61,7 +61,10 @@ onMounted(carregar)
 
 <template>
   <section class="secao py-10">
-    <h1 class="mb-6 text-3xl font-extrabold">{{ t('amistosos.titulo') }}</h1>
+    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <h1 class="text-3xl font-extrabold">{{ t('amistosos.titulo') }}</h1>
+      <RouterLink :to="{ name: 'criar-amistoso' }" class="botao-primario">+ {{ t('criar.amistoso') }}</RouterLink>
+    </header>
 
     <div class="mb-6 flex flex-wrap gap-2" role="tablist">
       <button

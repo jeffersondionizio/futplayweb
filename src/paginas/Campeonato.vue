@@ -6,6 +6,7 @@ import { api, type Campeonato, type Participante, type Jogo, type Clube } from '
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
 import Foto from '../componentes/Foto.vue'
+import Chat from '../componentes/Chat.vue'
 import { nomeDoClube, registrar } from '../servicos/clubes'
 
 const { t, locale } = useI18n()
@@ -168,6 +169,8 @@ onMounted(carregar)
           {{ campeonato.regulamento || t('comum.naoInformado') }}
         </p>
       </div>
+
+      <Chat class="mt-6" contexto="campeonatos" :id="campeonato.id" />
     </section>
   </Estado>
 </template>

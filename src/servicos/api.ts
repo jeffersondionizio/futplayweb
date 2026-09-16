@@ -235,6 +235,8 @@ export const api = {
     requisitar<void>(`/clubes/${id}/membros`, { metodo: 'POST', corpo: { acao: 'entrar' } }),
 
   meusCampeonatos: () => requisitar<Campeonato[]>('/campeonatos'),
+  criarCampeonato: (corpo: Record<string, unknown>) =>
+    requisitar<Campeonato>('/campeonatos', { metodo: 'POST', corpo }),
   todosCampeonatos: () => requisitar<Campeonato[]>('/campeonatos?scope=all'),
   campeonato: (id: string) => requisitar<Campeonato>(`/campeonatos/${id}`),
   participantes: (id: string) => requisitar<Participante[]>(`/campeonatos/${id}/participantes`),
@@ -248,6 +250,8 @@ export const api = {
   amistosos: (scope: 'meus' | 'recebidos' | 'abertos' | 'historico', filtros: Record<string, string> = {}) =>
     requisitar<Amistoso[]>(`/amistosos${consulta({ scope, ...filtros })}`),
   amistoso: (id: string) => requisitar<Amistoso>(`/amistosos/${id}`),
+  criarAmistoso: (corpo: Record<string, unknown>) =>
+    requisitar<Amistoso>('/amistosos', { metodo: 'POST', corpo }),
   candidatarAmistoso: (id: string, clubeVisitanteId: string) =>
     requisitar<Amistoso>(`/amistosos/${id}/candidatura`, {
       metodo: 'PUT',

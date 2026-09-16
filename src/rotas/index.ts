@@ -27,6 +27,12 @@ const rotas: RouteRecordRaw[] = [
   },
   { path: '/campeonatos', name: 'campeonatos', component: () => import('../paginas/Campeonatos.vue') },
   {
+    path: '/campeonatos/novo',
+    name: 'criar-campeonato',
+    component: () => import('../paginas/CriarCampeonato.vue'),
+    meta: { exigeSessao: true },
+  },
+  {
     path: '/campeonatos/:id',
     name: 'campeonato',
     component: () => import('../paginas/Campeonato.vue'),
@@ -36,6 +42,12 @@ const rotas: RouteRecordRaw[] = [
     path: '/amistosos',
     name: 'amistosos',
     component: () => import('../paginas/Amistosos.vue'),
+    meta: { exigeSessao: true },
+  },
+  {
+    path: '/amistosos/novo',
+    name: 'criar-amistoso',
+    component: () => import('../paginas/CriarAmistoso.vue'),
     meta: { exigeSessao: true },
   },
   { path: '/clubes', name: 'clubes', component: () => import('../paginas/Clubes.vue') },

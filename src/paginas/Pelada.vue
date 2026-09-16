@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { api, type Grupo, type Jogador } from '../servicos/api'
 import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
+import Chat from '../componentes/Chat.vue'
 
 const { t, locale } = useI18n()
 const rota = useRoute()
@@ -148,6 +149,8 @@ onMounted(carregar)
           </li>
         </ul>
       </div>
+
+      <Chat class="mt-6" contexto="grupo" :id="grupo.id" />
     </section>
   </Estado>
 </template>
