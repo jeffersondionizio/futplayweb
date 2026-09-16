@@ -1,0 +1,249 @@
+/**
+ * Os cards de pelada, clube e amistoso.
+ *
+ * Os três mostram coisas diferentes, mas têm a mesma anatomia: uma faixa de
+ * identidade no topo, o corpo com os dados que decidem se você vai ou não, e um
+ * rodapé com a ação. Manter a anatomia igual é o que faz as três listas
+ * parecerem o mesmo site, e é por isso que este arquivo é um só.
+ */
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: .875rem;
+  border: 1px solid var(--color-linha);
+  background: var(--color-painel);
+  box-shadow: 0 1px 2px rgb(20 45 28 / .03);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.cartao:hover {
+  transform: translateY(-2px);
+  border-color: #cfe0d5;
+  box-shadow: 0 2px 4px rgb(20 45 28 / .05), 0 14px 30px rgb(20 45 28 / .09);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao:hover { transform: none; }
+}
+
+/* Faixa de identidade: verde da marca, com a foto do grupo ou o escudo em cima. */
+.cartao-topo {
+  position: relative;
+  padding: 1.1rem 1.15rem .9rem;
+  background: linear-gradient(135deg, #0a6a3a 0%, var(--color-marca-vivo) 140%);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+
+/* Textura discreta, para a faixa não virar um bloco chapado. */
+.cartao-topo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 88% -30%, rgb(255 255 255 / .22), transparent 58%),
+    radial-gradient(circle at 12% 130%, rgb(0 0 0 / .16), transparent 55%);
+  pointer-events: none;
+}
+
+.cartao-topo > * { position: relative; z-index: 1; }
+.cartao-topo img, .cartao-topo > span[aria-hidden] {
+  border-color: rgb(255 255 255 / .35);
+  background: rgb(255 255 255 / .16);
+  color: white;
+}
+
+.cartao-identidade { min-width: 0; flex: 1; }
+.cartao-titulo {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.cartao-local {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  margin-top: .15rem;
+  font-size: .78rem;
+  color: rgb(255 255 255 / .82);
+}
+
+/* Etiquetas curtas do topo: tipo de pelada, formato, papel no clube. */
+.cartao-selos { display: flex; flex-wrap: wrap; gap: .35rem; padding: .75rem 1.15rem 0; }
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  border-radius: 999px;
+  padding: .2rem .6rem;
+  font-size: .68rem;
+  font-weight: 750;
+  letter-spacing: .01em;
+  background: var(--color-marca-claro);
+  color: #106237;
+}
+.selo-neutro { background: var(--color-zebra); color: var(--color-tinta-suave); }
+.selo-alerta { background: #fff4e3; color: #8a4b00; }
+
+/* Corpo: pares rótulo/valor em duas colunas. */
+.cartao-dados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem 1rem;
+  padding: 1rem 1.15rem;
+}
+.cartao-dados dt {
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--color-tinta-fraca);
+}
+.cartao-dados dd {
+  margin-top: .15rem;
+  font-size: .85rem;
+  font-weight: 650;
+  color: var(--color-tinta);
+  overflow-wrap: anywhere;
+}
+.cartao-dados .destaque { color: var(--color-marca); font-weight: 800; }
+
+.cartao-rodape {
+  margin-top: auto;
+  display: flex;
+  gap: .5rem;
+  padding: .85rem 1.15rem 1.05rem;
+  border-top: 1px solid var(--color-linha);
+}
+.cartao-rodape > * { flex: 1; }
+
+/* Barra de vagas: o número sozinho não diz se ainda dá tempo de entrar. */
+.barra-vagas {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-linha);
+  overflow: hidden;
+  margin-top: .4rem;
+}
+.barra-vagas > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-marca-vivo);
+  transition: width .3s ease;
+}
+.barra-vagas.cheia > i { background: var(--color-estado-erro); }
+
+/* Confronto do amistoso: escudo, x, escudo. */
+.cartao-confronto {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: .6rem;
+  padding: 1.15rem;
+}
+.cartao-lado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+  text-align: center;
+  font-size: .8rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.cartao-lado.indefinido { color: var(--color-tinta-fraca); font-weight: 600; font-style: italic; }
+.cartao-placar {
+  font-size: 1.35rem;
+  font-weight: 850;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-tinta);
+}
+.cartao-versus {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-tinta-fraca);
+}
+
+/* Filtro das listas: campo de busca + contagem do que sobrou. */
+.barra-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: 1.5rem;
+}
+.barra-filtros .campo { max-width: 20rem; }
+.contagem-resultado {
+  font-size: .78rem;
+  font-weight: 650;
+  color: var(--color-tinta-fraca);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 420px) {
+  .cartao-dados { grid-template-columns: minmax(0, 1fr); }
+  .contagem-resultado { margin-left: 0; width: 100%; }
+}
+
+/**
+ * Faixa de topo das listas.
+ *
+ * Peladas, campeonatos, clubes e amistosos abriam com um título preto sobre
+ * fundo cinza, e as quatro telas ficavam indistinguíveis entre si. A faixa dá
+ * cor à página e é onde as abas passam a morar, em vez de flutuarem soltas ao
+ * lado do título.
+ */
+.capa-lista {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  padding: 1.75rem;
+  border-radius: 1rem;
+  background: linear-gradient(120deg, #06422a 0%, #0a7541 58%, var(--color-marca-vivo) 130%);
+  color: white;
+}
+
+.capa-lista::after {
+  content: '';
+  position: absolute;
+  right: -70px;
+  top: -90px;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgb(255 255 255 / .12);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 28px rgb(255 255 255 / .05);
+  pointer-events: none;
+}
+
+.capa-lista > * { position: relative; z-index: 1; }
+.capa-lista h1 { font-size: clamp(1.7rem, 3.4vw, 2.3rem); font-weight: 850; letter-spacing: -.04em; }
+.capa-lista p { margin-top: .3rem; color: rgb(255 255 255 / .8); font-size: .92rem; max-width: 46ch; }
+
+/* Abas da faixa: pílulas claras sobre o verde, a ativa em branco sólido. */
+.abas-lista { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.25rem; }
+.aba-lista {
+  border-radius: 999px;
+  padding: .45rem 1rem;
+  font-size: .82rem;
+  font-weight: 750;
+  color: rgb(255 255 255 / .86);
+  background: rgb(255 255 255 / .12);
+  transition: background .15s, color .15s;
+}
+.aba-lista:hover { background: rgb(255 255 255 / .24); color: white; }
+.aba-lista[aria-selected="true"] { background: white; color: #0a5c33; }
+.capa-lista :focus-visible { outline-color: var(--color-destaque); }

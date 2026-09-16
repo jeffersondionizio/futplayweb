@@ -24,6 +24,32 @@ export function tabelasPorGrupo(participantes: Participante[]) {
   return [...grupos].map(([grupo, linhas]) => ({ grupo, linhas }))
 }
 
+export type Zona = 'classificado' | 'repescagem' | 'rebaixamento' | null
+
+/**
+ * A faixa colorida da linha, no papel que ela tem na tabela do Brasileirão: a
+ * posição sozinha não diz nada, o que informa é o que ela garante.
+ *
+ * Só as zonas que o campeonato realmente define aparecem. `classificados` vem do
+ * cadastro; quando a competição tem grupos, quem passa é o topo de cada grupo e
+ * não existe rebaixamento — grupo não rebaixa ninguém, elimina. Em pontos
+ * corridos com gente suficiente, as duas últimas colocações são a zona de baixo,
+ * e a linha seguinte à de classificação é a repescagem.
+ */
+export function zonaDaPosicao(
+  posicao: number,
+  total: number,
+  classificados: number,
+  temGrupos: boolean,
+): Zona {
+  if (total < 3) return null
+  if (classificados > 0 && posicao <= classificados) return 'classificado'
+  if (temGrupos) return null
+  if (classificados > 0 && posicao === classificados + 1) return 'repescagem'
+  if (total >= 6 && posicao > total - 2) return 'rebaixamento'
+  return null
+}
+
 export function ultimosResultados(jogos: Jogo[], clube: string): ('V' | 'E' | 'D')[] {
   return jogos.filter(j => finalizado(j) && [j.clube_a_id, j.clube_b_id].includes(clube))
     .sort((a, b) => data(a) - data(b) || numero(a.rodada) - numero(b.rodada))

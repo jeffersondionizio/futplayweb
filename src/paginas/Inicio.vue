@@ -33,7 +33,6 @@ const passos = ['um', 'dois', 'tres'] as const
             <span><strong>{{ t('home.instalar') }}</strong><small>{{ t('home.loja') }}</small></span><span aria-hidden="true" class="seta-instalar">↗</span>
           </a>
         </div>
-        <RouterLink :to="{ name: 'peladas' }" class="explorar-web">{{ t('home.navegador') }} <span aria-hidden="true">→</span></RouterLink>
       </div>
 
       <div class="inicio-guia painel p-6">
@@ -76,16 +75,11 @@ const passos = ['um', 'dois', 'tres'] as const
     </div>
   </section>
 
-  <!-- mesma conta -->
-  <section class="secao pb-16">
-    <div class="inicio-convite painel flex flex-col items-start gap-6 p-8 md:flex-row md:items-center md:justify-between">
-      <div>
-        <h2 class="text-2xl font-extrabold">{{ t('home.appConvite') }}</h2>
-        <p class="mt-2 max-w-2xl text-[var(--color-tinta-suave)]">{{ t('home.appConviteTexto') }}</p>
-      </div>
-      <a :href="URL_APP_ANDROID" rel="noopener" class="botao-primario shrink-0">{{ t('home.instalar') }} <span aria-hidden="true">↗</span></a>
-    </div>
-  </section>
+  <!--
+    O convite de instalar saiu daqui: o herói já abre com o botão da loja e a
+    barra fixa do celular repete o mesmo pedido. Três chamadas para a mesma ação
+    na mesma página não convencem mais, só ocupam a rolagem.
+  -->
   <aside class="instalar-mobile" :aria-label="t('home.appSelo')"><div><strong>FutPlay</strong><span>{{ t('home.chamadaMobile') }}</span></div><a :href="URL_APP_ANDROID" class="botao-primario">{{ t('home.instalar') }} <span aria-hidden="true">↗</span></a></aside>
   </div>
 </template>

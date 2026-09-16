@@ -25,10 +25,18 @@ onBeforeUnmount(() => document.removeEventListener('click', fecharFora))
 
 <template>
   <div ref="raiz" class="seletor-idioma relative">
+    <!--
+      O hover não vem de utilitária do Tailwind de propósito.
+
+      `hover:bg-[…]` entra na layer `utilities`, que o navegador resolve depois
+      de `components` — e layer ganha de especificidade. Com o cabeçalho verde
+      pintando o texto de branco, o hover trocava o fundo por um verde quase
+      branco e o rótulo sumia dentro do próprio botão, sem que nenhuma regra do
+      tema conseguisse impedir. Aqui o estado fica no CSS do componente.
+    -->
     <button
       type="button"
-      class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold
-             hover:bg-[var(--color-marca-claro)]"
+      class="gatilho-idioma flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold"
       :aria-label="t('comum.idioma')"
       :aria-expanded="aberto"
       @click="aberto = !aberto"
@@ -50,9 +58,7 @@ onBeforeUnmount(() => document.removeEventListener('click', fecharFora))
           type="button"
           role="option"
           :aria-selected="idioma.codigo === locale"
-          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm
-                 hover:bg-[var(--color-marca-claro)]"
-          :class="idioma.codigo === locale ? 'font-bold text-[var(--color-marca)]' : ''"
+          class="opcao-idioma flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
           @click="escolher(idioma.codigo)"
         >
           <span aria-hidden="true">{{ idioma.bandeira }}</span>

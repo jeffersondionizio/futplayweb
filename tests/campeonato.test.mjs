@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { resumoJogos, rankingJogadores, ultimosResultados, agruparRodadas, tabelasPorGrupo } from '../src/servicos/estatisticas.ts'
+import { resumoJogos, rankingJogadores, ultimosResultados, agruparRodadas, tabelasPorGrupo, zonaDaPosicao } from '../src/servicos/estatisticas.ts'
 
 const jogo = (id, extra = {}) => ({ id, campeonato_id: 'c', rodada: '1', fase: 'GRUPOS', grupo_id: null, clube_a_id: 'a', clube_b_id: 'b', status: 'FINALIZADO', placar_a: '2', placar_b: '1', ...extra })
 test('resumo só conta placares válidos de partidas finalizadas, incluindo zero a zero', () => {
@@ -34,4 +34,21 @@ test('tabela conserva desempate oficial da API e separa grupos, excluindo penden
   assert.equal(tabelas[0].linhas[0].aproveitamento, 67)
   assert.equal(tabelas[0].linhas[0].jogos, 2)
   assert.equal(tabelasPorGrupo([{ ...p('z', ''), vitorias: '0', empates: '0', derrotas: '0', pontos: '0' }])[0].linhas[0].aproveitamento, 0)
+})
+test('zona da tabela só existe quando o campeonato define o que ela vale', () => {
+  // Pontos corridos com 10 clubes e 4 classificados: G-4, repescagem no 5º, Z-2.
+  const zonas = Array.from({ length: 10 }, (_, i) => zonaDaPosicao(i + 1, 10, 4, false))
+  assert.deepEqual(zonas, [
+    'classificado', 'classificado', 'classificado', 'classificado', 'repescagem',
+    null, null, null, 'rebaixamento', 'rebaixamento',
+  ])
+  // Grupo elimina, não rebaixa: só o corte de classificação aparece.
+  assert.deepEqual(
+    Array.from({ length: 4 }, (_, i) => zonaDaPosicao(i + 1, 4, 2, true)),
+    ['classificado', 'classificado', null, null],
+  )
+  // Tabela curta demais não tem zona nenhuma, e sem classificados não há corte.
+  assert.equal(zonaDaPosicao(1, 2, 1, false), null)
+  assert.equal(zonaDaPosicao(1, 8, 0, false), null)
+  assert.equal(zonaDaPosicao(8, 8, 0, false), 'rebaixamento')
 })

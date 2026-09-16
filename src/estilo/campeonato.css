@@ -18,17 +18,55 @@
 .grade-classificacao { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 1.5rem; align-items: start; }
 .titulo-painel { display: flex; align-items: center; gap: .6rem; font-size: .95rem; font-weight: 750; padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--color-linha); }
 .titulo-painel::before { content: ''; width: 3px; height: 16px; border-radius: 2px; background: var(--color-marca-vivo); flex-shrink: 0; }
-.rolagem-tabela { overflow-x: auto; border-radius: 0 0 .75rem .75rem; }
+.rolagem-tabela { overflow-x: auto; }
 .tabela-campeonato { width: 100%; min-width: 760px; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
-.tabela-campeonato th, .tabela-campeonato td { padding: .95rem .6rem; text-align: center; border-bottom: 1px solid var(--color-linha); }
-.tabela-campeonato thead th { font-size: .65rem; color: var(--color-tinta-fraca); font-weight: 750; background: var(--color-zebra); }
-.tabela-campeonato .coluna-clube { text-align: left; min-width: 165px; position: sticky; left: 0; background: white; z-index: 1; box-shadow: 1px 0 var(--color-linha); }
-.tabela-campeonato tbody tr:hover td, .tabela-campeonato tbody tr:hover th { background: var(--color-marca-claro); }
+.tabela-campeonato th, .tabela-campeonato td { padding: .85rem .6rem; text-align: center; border-bottom: 1px solid var(--color-linha); }
+
+/*
+ * O cabeçalho acompanha a rolagem vertical da página: numa tabela de vinte
+ * clubes, sem isto as siglas P/J/V/E/D somem antes do meio e cada coluna vira
+ * adivinhação.
+ */
+.tabela-campeonato thead th {
+  position: sticky; top: 0; z-index: 2;
+  font-size: .65rem; color: var(--color-tinta-fraca); font-weight: 750;
+  background: var(--color-zebra); text-transform: uppercase; letter-spacing: .04em;
+  box-shadow: inset 0 -1px var(--color-linha);
+}
+.tabela-campeonato thead .coluna-clube, .tabela-campeonato thead .coluna-posicao { z-index: 3; background: var(--color-zebra); }
+.tabela-campeonato .coluna-clube { text-align: left; min-width: 165px; position: sticky; left: 34px; background: white; z-index: 1; box-shadow: 1px 0 var(--color-linha); }
+.tabela-campeonato .coluna-posicao { position: sticky; left: 0; width: 34px; padding-left: 0; padding-right: 0; background: white; z-index: 1; }
+.tabela-campeonato tbody tr:nth-child(even) > * { background: #fafcfa; }
+.tabela-campeonato tbody tr:hover > * { background: var(--color-marca-claro); }
 .tabela-campeonato tbody tr:last-child > * { border-bottom: 0; }
 .nome-tabela { display: flex; align-items: center; gap: .6rem; }
 .nome-tabela span { max-width: 145px; overflow-wrap: anywhere; }
-.pontos-tabela { font-weight: 850; background: var(--color-zebra); color: var(--color-tinta); }
-.posicao-tabela { font-weight: 750; color: var(--color-tinta-fraca); }
+.pontos-tabela { font-weight: 850; color: var(--color-tinta); font-size: .88rem; }
+.saldo-tabela.negativo { color: var(--color-estado-erro); }
+
+/*
+ * A posição é um selo, e não um número solto: é nele que a cor da zona entra,
+ * do mesmo jeito que na tabela do Brasileirão. Assim a linha inteira continua
+ * legível — pintar o fundo da linha toda brigaria com a zebra e com o hover.
+ */
+.posicao-tabela {
+  display: grid; place-items: center;
+  width: 22px; height: 22px; margin: 0 auto;
+  border-radius: 6px; font-weight: 800; font-size: .75rem;
+  color: var(--color-tinta-suave); background: var(--color-zebra);
+  border: 1px solid var(--color-linha);
+}
+.tabela-campeonato tr.zona-classificado .posicao-tabela { color: white; background: var(--color-zona-classificado); border-color: transparent; }
+.tabela-campeonato tr.zona-repescagem .posicao-tabela { color: white; background: var(--color-zona-repescagem); border-color: transparent; }
+.tabela-campeonato tr.zona-rebaixamento .posicao-tabela { color: white; background: var(--color-zona-rebaixamento); border-color: transparent; }
+.tabela-campeonato tr.linha-lider .nome-tabela span { font-weight: 800; }
+
+.legenda-zonas { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; padding: .9rem 1.25rem; border-top: 1px solid var(--color-linha); }
+.legenda-zonas li { display: flex; align-items: center; gap: .5rem; font-size: .72rem; color: var(--color-tinta-suave); }
+.marca-zona { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.marca-zona.zona-classificado { background: var(--color-zona-classificado); }
+.marca-zona.zona-repescagem { background: var(--color-zona-repescagem); }
+.marca-zona.zona-rebaixamento { background: var(--color-zona-rebaixamento); }
 .forma-time { display: flex; gap: 3px; min-width: 99px; justify-content: center; }
 .forma-time span[class] { width: 17px; height: 17px; display: grid; place-items: center; border-radius: 50%; font-size: 9px; font-weight: 800; color: white; }
 .resultado-V { background: var(--color-estado-sucesso); }.resultado-E { background: var(--color-tinta-fraca); }.resultado-D { background: var(--color-estado-erro); }
@@ -70,3 +108,28 @@
   .filtros-jogos, .controle-rodada { width: 100%; }.filtro-clube { max-width: none; }.controle-rodada select { flex: 1; width: 0; }
   .erro-ranking { flex-direction: column; align-items: flex-start; }
 }
+
+/*
+ * Chaveamento.
+ *
+ * Colunas lado a lado, uma por fase, rolando na horizontal: empilhar as fases
+ * quebraria a leitura de quem avança para onde, que é a única coisa que uma
+ * chave precisa dizer.
+ */
+.chaveamento { display: flex; gap: 1.25rem; overflow-x: auto; padding: 1.25rem; align-items: flex-start; }
+.chave-fase { display: flex; flex-direction: column; gap: .75rem; min-width: 232px; flex: 1; }
+.chave-titulo {
+  font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--color-tinta-fraca); text-align: center; padding-bottom: .4rem;
+  border-bottom: 2px solid var(--color-linha);
+}
+.chave-jogo { border: 1px solid var(--color-linha); border-radius: .6rem; overflow: hidden; background: white; }
+.chave-lado { display: flex; align-items: center; gap: .55rem; padding: .55rem .7rem; font-size: .8rem; }
+.chave-lado + .chave-lado { border-top: 1px solid var(--color-linha); }
+.chave-nome { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.chave-placar { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 1.2rem; text-align: right; }
+.chave-lado.venceu { background: var(--color-zona-classificado-fundo); }
+.chave-lado.venceu .chave-nome, .chave-lado.venceu .chave-placar { font-weight: 800; color: #0d5c32; }
+.chave-lado.perdeu { color: var(--color-tinta-fraca); }
+.chave-nota { padding: .35rem .7rem; font-size: .65rem; color: var(--color-tinta-fraca); background: var(--color-zebra); }
+.chave-vazio { font-size: .75rem; color: var(--color-tinta-fraca); text-align: center; padding: 1rem 0; }

@@ -60,28 +60,46 @@ const dataLegivel = (iso?: string) => {
   return d.toLocaleString(locale.value, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
+/**
+ * Busca local, por cima do que já está carregado.
+ *
+ * A busca por cidade vai ao servidor porque é o índice que decide o conjunto;
+ * esta aqui só afunila o que já está na tela, por nome ou local, e por isso
+ * responde a cada tecla sem custo nenhum.
+ */
+const termo = ref('')
+const visiveis = computed(() => {
+  const busca = termo.value.trim().toLowerCase()
+  if (!busca) return lista.value
+  return lista.value.filter((g) =>
+    [g.nome, g.local, g.cidade, g.dia_semana].some((c) => c?.toLowerCase().includes(busca)))
+})
+
+/** Quanto da pelada já está preenchido, para a barra de vagas. */
+const ocupacao = (g: Grupo) => {
+  const total = Number(g.qtde_jogadores ?? 0)
+  const dentro = Number(g.inscritos ?? 0)
+  if (!Number.isFinite(total) || total <= 0) return null
+  return { dentro, total, porcento: Math.min(100, Math.round((dentro / total) * 100)) }
+}
+
 onMounted(carregar)
 </script>
 
 <template>
   <section class="secao py-10">
-    <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-extrabold">{{ t('peladas.titulo') }}</h1>
-        <p class="text-[var(--color-tinta-suave)]">{{ t('home.subtitulo') }}</p>
-      </div>
+    <header class="capa-lista">
+      <h1>{{ t('peladas.titulo') }}</h1>
+      <p>{{ t('home.subtitulo') }}</p>
 
-      <div v-if="sessao.autenticado" class="flex gap-2" role="tablist">
+      <div v-if="sessao.autenticado" class="abas-lista" role="tablist">
         <button
           v-for="opcao in (['proximas', 'minhas'] as const)"
           :key="opcao"
           type="button"
           role="tab"
+          class="aba-lista"
           :aria-selected="aba === opcao"
-          class="rounded-lg px-4 py-2 text-sm font-bold"
-          :class="aba === opcao
-            ? 'bg-[var(--color-marca)] text-white'
-            : 'border border-[var(--color-linha)] bg-white text-[var(--color-tinta-suave)]'"
           @click="aba = opcao; carregar()"
         >{{ t(`peladas.${opcao}`) }}</button>
       </div>
@@ -89,66 +107,86 @@ onMounted(carregar)
 
     <ConviteEntrar v-if="!sessao.autenticado" formato="aviso" />
 
-    <form class="mb-6 flex flex-wrap gap-2" @submit.prevent="carregar">
-      <input v-model="cidade" class="campo max-w-xs" :placeholder="t('peladas.buscarCidade')" />
+    <form class="barra-filtros" @submit.prevent="carregar">
+      <input v-model="cidade" class="campo" :placeholder="t('peladas.buscarCidade')" />
       <button type="submit" class="botao-primario">{{ t('comum.buscar') }}</button>
       <button v-if="cidade" type="button" class="botao-secundario" @click="cidade = ''; carregar()">
         {{ t('comum.limpar') }}
       </button>
+      <input v-model="termo" class="campo" type="search" :placeholder="t('comum.filtrarNaLista')" />
+      <span v-if="lista.length" class="contagem-resultado">
+        {{ t('comum.resultados', visiveis.length) }}
+      </span>
     </form>
 
     <Estado
       :carregando="carregando"
       :erro="erro"
-      :vazio="!lista.length"
+      :vazio="!visiveis.length"
       :texto-vazio="t('peladas.vazio')"
       @recarregar="carregar"
     >
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li v-for="g in lista" :key="g.id" class="painel flex flex-col overflow-hidden">
-          <div class="flex items-start gap-3 p-5">
+        <li v-for="g in visiveis" :key="g.id" class="cartao">
+          <div class="cartao-topo">
             <Foto pasta="grupo" :id="g.id" :nome="g.nome" classe="h-12 w-12" />
-            <div class="min-w-0">
-              <h2 class="truncate font-bold">{{ g.nome }}</h2>
-              <p class="truncate text-sm text-[var(--color-tinta-fraca)]">
-                {{ g.cidade || t('comum.naoInformado') }}
+            <div class="cartao-identidade">
+              <h2 class="cartao-titulo">{{ g.nome }}</h2>
+              <p class="cartao-local">
+                <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" />
+                </svg>
+                <span class="truncate">{{ g.cidade || t('comum.naoInformado') }}</span>
               </p>
             </div>
           </div>
 
-          <dl class="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-[var(--color-linha)] px-5 py-4 text-sm">
+          <div v-if="g.tipo_pelada || g.pelada_proxima === 'true'" class="cartao-selos">
+            <span v-if="g.pelada_proxima === 'true'" class="selo">● {{ t('peladas.jogoMarcado') }}</span>
+            <span v-if="g.tipo_pelada" class="selo selo-neutro">{{ g.tipo_pelada }}</span>
+          </div>
+
+          <dl class="cartao-dados">
             <div>
-              <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ t('peladas.quando') }}</dt>
+              <dt>{{ t('peladas.quando') }}</dt>
               <dd>{{ g.data_peladaproxima ? dataLegivel(g.data_peladaproxima) : (g.dia_semana || '-') }}</dd>
             </div>
             <div>
-              <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ t('peladas.onde') }}</dt>
+              <dt>{{ t('peladas.onde') }}</dt>
               <dd class="truncate">{{ g.local || t('comum.naoInformado') }}</dd>
             </div>
             <div>
-              <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ t('peladas.valor') }}</dt>
-              <dd>{{ g.valor ? `R$ ${g.valor}` : '-' }}</dd>
+              <dt>{{ t('peladas.valor') }}</dt>
+              <dd :class="{ destaque: !g.valor || g.valor === '0' }">
+                {{ g.valor && g.valor !== '0' ? `R$ ${g.valor}` : t('peladas.gratis') }}
+              </dd>
             </div>
             <div>
-              <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ t('peladas.jogadores') }}</dt>
-              <dd>{{ g.inscritos ?? '0' }} {{ t('peladas.inscritos') }}</dd>
+              <dt>{{ t('peladas.jogadores') }}</dt>
+              <dd>
+                {{ g.inscritos ?? '0' }}<template v-if="ocupacao(g)">/{{ ocupacao(g)!.total }}</template>
+                <span v-if="!ocupacao(g)"> {{ t('peladas.inscritos') }}</span>
+              </dd>
+              <div v-if="ocupacao(g)" class="barra-vagas" :class="{ cheia: ocupacao(g)!.porcento >= 100 }">
+                <i :style="{ width: `${ocupacao(g)!.porcento}%` }" />
+              </div>
             </div>
           </dl>
 
-          <div class="mt-auto flex gap-2 border-t border-[var(--color-linha)] p-4">
-            <RouterLink :to="{ name: 'pelada', params: { id: g.id } }" class="botao-secundario flex-1">
+          <div class="cartao-rodape">
+            <RouterLink :to="{ name: 'pelada', params: { id: g.id } }" class="botao-secundario">
               {{ t('comum.ver') }}
             </RouterLink>
             <button
               v-if="sessao.autenticado && !meusIds.has(g.id)"
               type="button"
-              class="botao-primario flex-1"
+              class="botao-primario"
               :disabled="pedidos[g.id] || g.pedido_pendente"
               @click="pedirEntrada(g)"
             >
               {{ pedidos[g.id] || g.pedido_pendente ? t('peladas.pedidoEnviado') : t('peladas.pedirEntrada') }}
             </button>
-            <ConviteEntrar v-else-if="!sessao.autenticado" classe="flex-1" />
+            <ConviteEntrar v-else-if="!sessao.autenticado" />
           </div>
         </li>
       </ul>

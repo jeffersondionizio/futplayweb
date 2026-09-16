@@ -197,6 +197,8 @@ export type Jogo = {
   status: string
   placar_a: string
   placar_b: string
+  /** No mata-mata, quem passou depois de empate no tempo normal. */
+  vencedor_penaltis_id?: string
   data_hora?: string
   local?: string
 }

@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { api, publico, type Campeonato, type Participante, type Jogo, type EventoJogo } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
 import { nomeDoClube, registrar } from '../servicos/clubes'
-import { resumoJogos, tabelasPorGrupo, ultimosResultados, rankingJogadores, agruparRodadas } from '../servicos/estatisticas'
+import { resumoJogos, tabelasPorGrupo, ultimosResultados, rankingJogadores, agruparRodadas, zonaDaPosicao, type Zona } from '../servicos/estatisticas'
 import { mensagensCampeonato } from '../servicos/idioma-campeonato'
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
@@ -13,6 +13,7 @@ import Foto from '../componentes/Foto.vue'
 import Chat from '../componentes/Chat.vue'
 import JogoCampeonato from '../componentes/JogoCampeonato.vue'
 import RankingCampeonato from '../componentes/RankingCampeonato.vue'
+import Chaveamento from '../componentes/Chaveamento.vue'
 import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 import '../estilo/campeonato.css'
 
@@ -28,8 +29,8 @@ const erro = ref<string | null>(null)
 const erroEventos = ref(false)
 const carregandoEventos = ref(false)
 const atualizado = ref('')
-const abas = ['classificacao', 'jogos', 'estatisticas', 'regulamento'] as const
-const aba = ref<typeof abas[number]>('classificacao')
+const TODAS_ABAS = ['classificacao', 'chaveamento', 'jogos', 'estatisticas', 'regulamento'] as const
+const aba = ref<typeof TODAS_ABAS[number]>('classificacao')
 const clubeFiltro = ref('')
 const rodada = ref('')
 let versao = 0
@@ -65,6 +66,37 @@ const indicadores = computed(() => [
   { nome: t('media'), valor: resumo.value.media.toLocaleString(locale.value, { maximumFractionDigits: 2 }) },
 ])
 const fase = (valor: string) => te(valor) ? t(valor) : valor.replaceAll('_', ' ')
+
+/**
+ * As fases do mata-mata, da mais distante da decisão até a final.
+ *
+ * `MATA_MATA` genérico entra junto porque o backend usa esse rótulo quando o
+ * organizador gera a chave sem nomear as fases.
+ */
+const FASES_CHAVE = ['MATA_MATA', 'OITAVAS', 'QUARTAS', 'SEMIFINAL', 'FINAL'] as const
+
+const chaveamento = computed(() => FASES_CHAVE
+  .map((f) => ({ fase: f, jogos: jogos.value.filter((j) => j.fase.toUpperCase() === f) }))
+  .filter((etapa) => etapa.jogos.length))
+
+/** A aba de chaveamento só existe onde existe mata-mata: liga não tem chave. */
+const abas = computed(() => TODAS_ABAS.filter((a) => a !== 'chaveamento' || chaveamento.value.length))
+
+type Tabela = (typeof tabelas)['value'][number]
+
+/** Faixa colorida da linha; `tabelas` já vem na ordem oficial do campeonato. */
+const zonaDaLinha = (indice: number, tabela: Tabela): Zona => zonaDaPosicao(
+  indice + 1,
+  tabela.linhas.length,
+  campeonato.value?.classificados_por_grupo ?? 0,
+  Boolean(tabela.grupo),
+)
+
+/** Só entra na legenda a zona que aparece de fato naquela tabela. */
+const zonasPresentes = (tabela: Tabela): Exclude<Zona, null>[] => {
+  const vistas = tabela.linhas.map((_, i) => zonaDaLinha(i, tabela))
+  return (['classificado', 'repescagem', 'rebaixamento'] as const).filter((z) => vistas.includes(z))
+}
 
 async function carregarEventos(id = String(rota.params.id), atual = versao) {
   erroEventos.value = false
@@ -115,13 +147,13 @@ function mudarRodada(delta: number) {
 }
 function navegarAbas(evento: KeyboardEvent, indice: number) {
   let proximo = indice
-  if (evento.key === 'ArrowRight') proximo = (indice + 1) % abas.length
-  else if (evento.key === 'ArrowLeft') proximo = (indice + abas.length - 1) % abas.length
+  if (evento.key === 'ArrowRight') proximo = (indice + 1) % abas.value.length
+  else if (evento.key === 'ArrowLeft') proximo = (indice + abas.value.length - 1) % abas.value.length
   else if (evento.key === 'Home') proximo = 0
-  else if (evento.key === 'End') proximo = abas.length - 1
+  else if (evento.key === 'End') proximo = abas.value.length - 1
   else return
   evento.preventDefault()
-  aba.value = abas[proximo]!
+  aba.value = abas.value[proximo]!
   document.getElementById(`aba-${aba.value}`)?.focus()
 }
 watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; aba.value = 'classificacao'; void carregar() }, { immediate: true })
@@ -153,15 +185,24 @@ watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; a
                 <div class="rolagem-tabela" tabindex="0" :aria-label="t('classificacao')">
                   <table class="tabela-campeonato">
                     <caption class="sr-only">{{ campeonato.nome }} — {{ t('classificacao') }} {{ tabela.grupo }}</caption>
-                    <thead><tr><th scope="col">#</th><th scope="col" class="coluna-clube">{{ t('clube') }}</th><th v-for="col in ['P', 'J', 'V', 'E', 'D', 'GP', 'GC', 'SG', '%']" :key="col" scope="col">{{ col }}</th><th scope="col">{{ t('ultimos') }}</th></tr></thead>
-                    <tbody><tr v-for="(p, i) in tabela.linhas" :key="p.clube_id">
-                      <td class="posicao-tabela">{{ i + 1 }}</td>
+                    <thead><tr><th scope="col" class="coluna-posicao">#</th><th scope="col" class="coluna-clube">{{ t('clube') }}</th><th v-for="col in ['P', 'J', 'V', 'E', 'D', 'GP', 'GC', 'SG', '%']" :key="col" scope="col">{{ col }}</th><th scope="col">{{ t('ultimos') }}</th></tr></thead>
+                    <tbody><tr
+                      v-for="(p, i) in tabela.linhas"
+                      :key="p.clube_id"
+                      :class="[`zona-${zonaDaLinha(i, tabela) ?? 'nenhuma'}`, { 'linha-lider': !i }]"
+                    >
+                      <td class="coluna-posicao">
+                        <span class="posicao-tabela">{{ i + 1 }}</span>
+                      </td>
                       <th scope="row" class="coluna-clube"><div class="nome-tabela"><Foto pasta="clube" :id="p.clube_id" :nome="nomeDoClube(p.clube_id)" classe="h-7 w-7" /><span>{{ nomeDoClube(p.clube_id) }}</span></div></th>
-                      <td class="pontos-tabela">{{ p.pontos }}</td><td>{{ p.jogos }}</td><td>{{ p.vitorias }}</td><td>{{ p.empates }}</td><td>{{ p.derrotas }}</td><td>{{ p.gols_pro }}</td><td>{{ p.gols_contra }}</td><td>{{ p.saldo_gols }}</td><td>{{ p.aproveitamento }}</td>
+                      <td class="pontos-tabela">{{ p.pontos }}</td><td>{{ p.jogos }}</td><td>{{ p.vitorias }}</td><td>{{ p.empates }}</td><td>{{ p.derrotas }}</td><td>{{ p.gols_pro }}</td><td>{{ p.gols_contra }}</td><td class="saldo-tabela" :class="{ negativo: Number(p.saldo_gols) < 0 }">{{ p.saldo_gols }}</td><td>{{ p.aproveitamento }}</td>
                       <td><div class="forma-time"><span v-for="(resultado, index) in forma[p.clube_id]" :key="index" :class="`resultado-${resultado}`" :title="t(resultado)" :aria-label="t(resultado)">{{ resultado }}</span><span v-if="!forma[p.clube_id]?.length">—</span></div></td>
                     </tr></tbody>
                   </table>
                 </div>
+                <ul v-if="zonasPresentes(tabela).length" class="legenda-zonas">
+                  <li v-for="zona in zonasPresentes(tabela)" :key="zona"><i :class="`marca-zona zona-${zona}`" aria-hidden="true" />{{ t(`zona_${zona}`) }}</li>
+                </ul>
               </section>
               <p v-if="!tabelas.length" class="painel vazio-campeonato">{{ t('semTabela') }}</p>
               <p class="legenda-tabela">{{ t('legenda') }}</p><p class="legenda-tabela">{{ t('ordem') }}</p>
@@ -169,6 +210,11 @@ watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; a
             <aside class="painel agenda-campeonato"><h2 class="titulo-painel">{{ t('proximos') }}</h2><JogoCampeonato v-for="j in proximos" :key="j.id" :jogo="j" /><p v-if="!proximos.length" class="vazio-campeonato">{{ t('semAgenda') }}</p><button type="button" class="link-todos" @click="aba = 'jogos'">{{ t('verJogos') }} →</button></aside>
           </div>
         </template>
+
+        <section v-else-if="aba === 'chaveamento'" class="painel">
+          <h2 class="titulo-painel">{{ t('chaveamento') }}</h2>
+          <Chaveamento :fases="chaveamento" />
+        </section>
 
         <section v-else-if="aba === 'jogos'" class="painel">
           <div class="filtros-jogos">

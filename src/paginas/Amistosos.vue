@@ -61,6 +61,17 @@ async function candidatar(a: Amistoso) {
   }
 }
 
+/** Filtro local: o nome do clube já está resolvido em memória pelo cache. */
+const termo = ref('')
+const visiveis = computed(() => {
+  const busca = termo.value.trim().toLowerCase()
+  if (!busca) return lista.value
+  return lista.value.filter((a) => [
+    nomeClube(a.clube_mandante_id), nomeClube(a.clube_visitante_id),
+    a.cidade, a.local_nome, a.status,
+  ].some((campo) => campo?.toLowerCase().includes(busca)))
+})
+
 const quando = (iso?: string) => {
   if (!iso) return '-'
   const d = new Date(iso)
@@ -87,77 +98,101 @@ onMounted(() => {
 
 <template>
   <section class="secao py-10">
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <h1 class="text-3xl font-extrabold">{{ t('amistosos.titulo') }}</h1>
-      <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-amistoso' }" class="botao-primario">
-        + {{ t('criar.amistoso') }}
-      </RouterLink>
+    <header class="capa-lista">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1>{{ t('amistosos.titulo') }}</h1>
+          <p>{{ t('amistosos.chamada') }}</p>
+        </div>
+        <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-amistoso' }" class="botao-primario shrink-0">
+          + {{ t('criar.amistoso') }}
+        </RouterLink>
+      </div>
+
+      <div class="abas-lista" role="tablist">
+        <button
+          v-for="e in abas"
+          :key="e"
+          type="button"
+          role="tab"
+          class="aba-lista"
+          :aria-selected="aba === e"
+          @click="aba = e; carregar()"
+        >{{ t(`amistosos.${e}`) }}</button>
+      </div>
     </header>
 
     <ConviteEntrar v-if="!sessao.autenticado" formato="aviso" />
 
-    <div class="mb-6 flex flex-wrap gap-2" role="tablist">
-      <button
-        v-for="e in abas"
-        :key="e"
-        type="button"
-        role="tab"
-        :aria-selected="aba === e"
-        class="rounded-lg px-4 py-2 text-sm font-bold"
-        :class="aba === e
-          ? 'bg-[var(--color-marca)] text-white'
-          : 'border border-[var(--color-linha)] bg-white text-[var(--color-tinta-suave)]'"
-        @click="aba = e; carregar()"
-      >{{ t(`amistosos.${e}`) }}</button>
+    <div v-if="lista.length" class="barra-filtros">
+      <input v-model="termo" class="campo" type="search" :placeholder="t('comum.filtrarNaLista')" />
+      <span class="contagem-resultado">{{ t('comum.resultados', visiveis.length) }}</span>
     </div>
 
     <Estado
       :carregando="carregando"
       :erro="erro"
-      :vazio="!lista.length"
+      :vazio="!visiveis.length"
       :texto-vazio="t('amistosos.vazio')"
       @recarregar="carregar"
     >
       <ul class="grid gap-4 md:grid-cols-2">
-        <li v-for="a in lista" :key="a.id" class="painel p-5">
-          <div class="flex items-center justify-between gap-3">
+        <li v-for="a in visiveis" :key="a.id" class="cartao">
+          <div class="cartao-selos items-center justify-between pb-0">
             <Etiqueta :status="a.status" />
-            <span class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ a.tipo }}</span>
+            <span class="selo selo-neutro">{{ a.tipo }}</span>
           </div>
 
-          <div class="mt-4 flex items-center justify-center gap-4 text-center">
-            <p class="flex-1 font-bold">{{ nomeClube(a.clube_mandante_id) }}</p>
-            <p class="shrink-0 rounded-lg bg-[var(--color-papel)] px-3 py-1 font-extrabold">
+          <div class="cartao-confronto">
+            <div class="cartao-lado">
+              <Foto pasta="clube" :id="a.clube_mandante_id" :nome="nomeClube(a.clube_mandante_id)" classe="h-11 w-11" />
+              <span>{{ nomeClube(a.clube_mandante_id) }}</span>
+            </div>
+            <p :class="a.status === 'FINALIZADO' ? 'cartao-placar' : 'cartao-versus'">
               {{ a.status === 'FINALIZADO'
                 ? `${a.placar_mandante ?? 0} - ${a.placar_visitante ?? 0}`
                 : t('amistosos.versus') }}
             </p>
-            <p class="flex-1 font-bold">{{ nomeClube(a.clube_visitante_id) }}</p>
+            <div class="cartao-lado" :class="{ indefinido: !a.clube_visitante_id }">
+              <Foto
+                v-if="a.clube_visitante_id"
+                pasta="clube"
+                :id="a.clube_visitante_id"
+                :nome="nomeClube(a.clube_visitante_id)"
+                classe="h-11 w-11"
+              />
+              <span v-else aria-hidden="true" class="grid h-11 w-11 place-items-center rounded-lg border border-dashed border-[var(--color-linha)] text-lg">?</span>
+              <span>{{ nomeClube(a.clube_visitante_id) }}</span>
+            </div>
           </div>
 
-          <dl class="mt-4 space-y-1 text-sm text-[var(--color-tinta-suave)]">
-            <div class="flex justify-between gap-3">
+          <dl class="cartao-dados border-t border-[var(--color-linha)]">
+            <div>
               <dt>{{ t('peladas.quando') }}</dt>
               <dd>{{ quando(a.data_hora) }}</dd>
             </div>
-            <div class="flex justify-between gap-3">
+            <div>
               <dt>{{ t('peladas.onde') }}</dt>
               <dd class="truncate">{{ a.local_nome || a.cidade || t('comum.naoInformado') }}</dd>
             </div>
           </dl>
 
-          <button
-            v-if="aba === 'abertos' && meusClubes.length"
-            type="button"
-            class="botao-primario mt-4 w-full"
-            :disabled="enviados[a.id]"
-            @click="candidatar(a)"
-          >{{ enviados[a.id] ? t('amistosos.candidatado') : t('amistosos.candidatar') }}</button>
-          <ConviteEntrar
-            v-else-if="!sessao.autenticado && aba === 'abertos'"
-            classe="mt-4 w-full"
-            :texto="t('amistosos.candidatar')"
-          />
+          <div class="cartao-rodape">
+            <button
+              v-if="aba === 'abertos' && meusClubes.length"
+              type="button"
+              class="botao-primario"
+              :disabled="enviados[a.id]"
+              @click="candidatar(a)"
+            >{{ enviados[a.id] ? t('amistosos.candidatado') : t('amistosos.candidatar') }}</button>
+            <ConviteEntrar
+              v-else-if="!sessao.autenticado && aba === 'abertos'"
+              :texto="t('amistosos.candidatar')"
+            />
+            <span v-else class="botao-secundario pointer-events-none opacity-60">
+              {{ t(`status.${a.status}`) }}
+            </span>
+          </div>
         </li>
       </ul>
     </Estado>

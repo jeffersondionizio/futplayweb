@@ -32,15 +32,22 @@ onMounted(carregar)
 
 <template>
   <section class="secao py-10">
-    <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <h1 class="text-3xl font-extrabold">{{ t('campeonatos.titulo') }}</h1>
-      <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-campeonato' }" class="botao-primario">+ {{ t('criar.campeonato') }}</RouterLink>
-      <div v-if="sessao.autenticado" class="flex gap-2" role="tablist">
+    <header class="capa-lista">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1>{{ t('campeonatos.titulo') }}</h1>
+          <p>{{ t('campeonatos.chamada') }}</p>
+        </div>
+        <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-campeonato' }" class="botao-primario shrink-0">
+          + {{ t('criar.campeonato') }}
+        </RouterLink>
+      </div>
+
+      <div v-if="sessao.autenticado" class="abas-lista" role="tablist">
         <button
           v-for="opcao in (['descobrir', 'meus'] as const)" :key="opcao" type="button" role="tab"
+          class="aba-lista"
           :aria-selected="aba === opcao"
-          class="rounded-lg px-4 py-2 text-sm font-bold"
-          :class="aba === opcao ? 'bg-[var(--color-marca)] text-white' : 'border border-[var(--color-linha)] bg-white text-[var(--color-tinta-suave)]'"
           @click="aba = opcao; carregar()"
         >{{ t(`campeonatos.${opcao}`) }}</button>
       </div>

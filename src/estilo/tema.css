@@ -32,6 +32,18 @@
   --color-estado-sucesso: #008040;
   --color-estado-negociando: #945100;
 
+  /*
+   * Zonas da tabela, no mesmo papel das faixas coloridas do ge: a cor diz o que
+   * está em jogo naquela posição sem precisar de uma coluna a mais. Verde é
+   * quem passa, azul é repescagem, vermelho é quem cai.
+   */
+  --color-zona-classificado: #06aa48;
+  --color-zona-repescagem: #2f6fd0;
+  --color-zona-rebaixamento: #c4170c;
+  --color-zona-classificado-fundo: #eaf7ef;
+  --color-zona-repescagem-fundo: #eaf1fb;
+  --color-zona-rebaixamento-fundo: #fdeceb;
+
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
@@ -129,11 +141,65 @@
     color: white;
     box-shadow: inset 0 -2px var(--color-destaque);
   }
-  .cabecalho-site .seletor-idioma > button { background: rgb(255 255 255 / .1); color: white; min-height: 38px; }
-  .cabecalho-site .seletor-idioma [role="listbox"] { color: var(--color-tinta); }
+  /*
+   * Seletor de idioma.
+   *
+   * Fundo e texto andam juntos aqui, sempre no mesmo bloco: foi separá-los que
+   * criou o botão branco no branco. Fora do cabeçalho ele é escuro sobre claro;
+   * dentro, claro sobre verde — e o hover muda a opacidade do véu, nunca a cor
+   * do texto.
+   */
+  .gatilho-idioma { color: var(--color-tinta-suave); transition: background .15s, color .15s; }
+  .gatilho-idioma:hover, .gatilho-idioma[aria-expanded="true"] {
+    background: var(--color-marca-claro);
+    color: var(--color-marca);
+  }
+
+  .cabecalho-site .gatilho-idioma { background: rgb(255 255 255 / .12); color: white; min-height: 38px; }
+  .cabecalho-site .gatilho-idioma:hover,
+  .cabecalho-site .gatilho-idioma[aria-expanded="true"] {
+    background: rgb(255 255 255 / .26);
+    color: white;
+  }
+
+  /*
+   * A lista suspensa é um painel branco mesmo dentro do cabeçalho verde: cada
+   * opção declara a própria cor porque o `color: inherit` do preflight a faria
+   * herdar o branco do cabeçalho.
+   */
+  .seletor-idioma [role="listbox"] { color: var(--color-tinta); }
+  .opcao-idioma { color: var(--color-tinta); transition: background .15s, color .15s; }
+  .opcao-idioma:hover { background: var(--color-marca-claro); color: var(--color-marca); }
+  .opcao-idioma[aria-selected="true"] { font-weight: 800; color: var(--color-marca); }
   .cabecalho-site .conta-cabecalho:hover { background: rgb(255 255 255 / .12); }
   .cabecalho-site .botao-primario { background: white; color: var(--color-marca); }
   .cabecalho-site :focus-visible { outline-color: var(--color-destaque); }
-  .rodape-site { background: #07552f; color: #e9f4ee; border-color: #096b3b; }
-  .rodape-site a:hover { color: white; text-decoration: underline; }
+  /*
+   * Rodapé: uma só escala de texto.
+   *
+   * Nome do site, links legais e linha de copyright compartilham tamanho e
+   * cor; o que separa um do outro é a opacidade, não o peso. Assim o bloco lê
+   * como um rodapé e não como mais um menu.
+   */
+  .rodape-site { margin-top: 3rem; background: #07552f; color: #d5e8dd; border-color: #0a6b3c; }
+  .rodape-conteudo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .4rem 1.25rem;
+    padding: .9rem 1rem;
+    font-size: .74rem;
+    line-height: 1.5;
+  }
+  .rodape-marca { font-weight: 800; letter-spacing: -.02em; color: white; }
+  .rodape-links { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; }
+  .rodape-link { color: #d5e8dd; transition: color .15s; }
+  .rodape-link:hover { color: white; text-decoration: underline; text-underline-offset: 3px; }
+  .rodape-direitos { color: #9dc2ad; }
+  .rodape-site :focus-visible { outline-color: var(--color-destaque); }
+
+  @media (max-width: 640px) {
+    .rodape-conteudo { flex-direction: column; align-items: flex-start; gap: .85rem; }
+  }
 }
