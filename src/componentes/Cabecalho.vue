@@ -18,9 +18,9 @@ const links = [
 </script>
 
 <template>
-  <header class="sticky top-0 z-40 border-b border-[var(--color-linha)] bg-white/95 backdrop-blur">
+  <header class="cabecalho-site sticky top-0 z-40 border-b">
     <div class="secao flex h-16 items-center justify-between gap-4">
-      <RouterLink :to="{ name: 'inicio' }" class="flex items-center gap-2 font-extrabold text-lg">
+      <RouterLink :to="{ name: 'inicio' }" class="marca-site flex items-center gap-2 font-extrabold">
         <span
           class="grid h-9 w-9 place-items-center rounded-lg bg-[var(--color-marca-escuro)] text-white"
           style="box-shadow: inset 0 -3px 0 var(--color-destaque)"
@@ -34,7 +34,7 @@ const links = [
           v-for="l in links"
           :key="l.nome"
           :to="{ name: l.nome }"
-          class="rounded-lg px-3 py-2 text-sm font-semibold text-[var(--color-tinta-suave)]
+          class="link-cabecalho rounded-lg px-3 py-2 text-sm font-semibold text-[var(--color-tinta-suave)]
                  hover:bg-[var(--color-marca-claro)] hover:text-[var(--color-marca)]"
           active-class="bg-[var(--color-marca-claro)] text-[var(--color-marca)]"
         >{{ t(l.rotulo) }}</RouterLink>

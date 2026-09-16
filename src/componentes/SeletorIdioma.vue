@@ -24,7 +24,7 @@ onBeforeUnmount(() => document.removeEventListener('click', fecharFora))
 </script>
 
 <template>
-  <div ref="raiz" class="relative">
+  <div ref="raiz" class="seletor-idioma relative">
     <button
       type="button"
       class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold

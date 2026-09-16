@@ -3,34 +3,34 @@
 /**
  * Tema do FutPlay web.
  *
- * As cores vêm do aplicativo Android (colors.xml) para que site e app pareçam o
- * mesmo produto: o verde da marca é o mesmo `theme_secondary`, e os estados de
- * campeonato e amistoso reaproveitam `comp_status_*` e `friendly_status_*`.
+ * Paleta editorial inspirada no ge: verde #06AA48, branco e cinzas neutros.
+ * O verde #008040 da mesma paleta mantém contraste nos textos pequenos e botões.
  */
 
 @theme {
-  --color-marca: #00813d;
-  --color-marca-escuro: #06402a;
-  --color-marca-claro: #dff3e9;
-  --color-destaque: #7ac74f;
+  --color-marca: #008040;
+  --color-marca-vivo: #06aa48;
+  --color-marca-escuro: #077633;
+  --color-marca-claro: #eaf7ef;
+  --color-destaque: #29ea77;
 
-  --color-tinta: #12233b;
-  --color-tinta-suave: #465c73;
-  --color-tinta-fraca: #57677a;
+  --color-tinta: #262626;
+  --color-tinta-suave: #424242;
+  --color-tinta-fraca: #666666;
 
-  --color-papel: #f5f8fc;
+  --color-papel: #ffffff;
   --color-painel: #ffffff;
-  --color-linha: #dce7e1;
-  --color-zebra: #eff3f8;
+  --color-linha: #e0e0e0;
+  --color-zebra: #f5f5f5;
 
-  --color-estado-ativo: #b34700;
-  --color-estado-encerrado: #b3124a;
-  --color-estado-agendado: #2f5d8c;
-  --color-estado-rascunho: #57677a;
+  --color-estado-ativo: #008040;
+  --color-estado-encerrado: #666666;
+  --color-estado-agendado: #424242;
+  --color-estado-rascunho: #666666;
   --color-estado-gerando: #945100;
-  --color-estado-erro: #ba1a1a;
-  --color-estado-sucesso: #007a39;
-  --color-estado-negociando: #5e35b1;
+  --color-estado-erro: #c4170c;
+  --color-estado-sucesso: #008040;
+  --color-estado-negociando: #945100;
 
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -59,7 +59,7 @@
 @layer components {
   .painel {
     @apply rounded-xl border border-[var(--color-linha)] bg-[var(--color-painel)];
-    box-shadow: 0 10px 24px rgb(18 35 59 / 0.05);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.025);
   }
 
   /*
@@ -96,4 +96,22 @@
   .secao {
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
   }
+
+  .cabecalho-site {
+    background: var(--color-marca-vivo);
+    color: #101010;
+    border-color: var(--color-marca);
+  }
+
+  .cabecalho-site .marca-site { color: white; font-size: 1.5rem; }
+  .cabecalho-site .link-cabecalho { color: #101010; }
+  .cabecalho-site .link-cabecalho:hover,
+  .cabecalho-site .link-cabecalho[aria-current="page"] {
+    background: white;
+    color: var(--color-marca);
+  }
+  .cabecalho-site .seletor-idioma > button { background: white; color: var(--color-tinta); }
+  .cabecalho-site :focus-visible { outline-color: #101010; }
+  .rodape-site { background: var(--color-marca); color: white; border-color: var(--color-marca); }
+  .rodape-site a:hover { color: white; text-decoration: underline; }
 }

@@ -25,6 +25,7 @@ test('últimos resultados respeitam mando, data e limite de cinco', () => {
 test('rodadas são numéricas e separadas por fase; jogos sem data ficam no fim', () => {
   const grupos = agruparRodadas([jogo('10', { rodada: '10' }), jogo('2', { rodada: '2' }), jogo('f', { fase: 'FINAL', rodada: '1' })])
   assert.deepEqual(grupos.map(g => g.jogos[0].id), ['2', '10', 'f'])
+  assert.deepEqual(agruparRodadas([jogo('sem-data'), jogo('datado', { data_hora: '2026-09-10T12:00:00Z' })])[0].jogos.map(j => j.id), ['datado', 'sem-data'])
 })
 test('tabela conserva desempate oficial da API e separa grupos, excluindo pendentes', () => {
   const p = (clube_id, grupo_fase, status = 'CONFIRMADO') => ({ clube_id, grupo_fase, status, vitorias: '1', empates: '1', derrotas: '0', pontos: '4' })
@@ -32,4 +33,5 @@ test('tabela conserva desempate oficial da API e separa grupos, excluindo penden
   assert.deepEqual(tabelas.map(g => g.linhas.map(l => l.clube_id)), [['b', 'a'], ['c']])
   assert.equal(tabelas[0].linhas[0].aproveitamento, 67)
   assert.equal(tabelas[0].linhas[0].jogos, 2)
+  assert.equal(tabelasPorGrupo([{ ...p('z', ''), vitorias: '0', empates: '0', derrotas: '0', pontos: '0' }])[0].linhas[0].aproveitamento, 0)
 })

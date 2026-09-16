@@ -1,176 +1,193 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api, type Campeonato, type Participante, type Jogo, type Clube } from '../servicos/api'
+import { api, type Campeonato, type Participante, type Jogo, type EventoJogo } from '../servicos/api'
+import { nomeDoClube, registrar } from '../servicos/clubes'
+import { resumoJogos, tabelasPorGrupo, ultimosResultados, rankingJogadores, agruparRodadas } from '../servicos/estatisticas'
+import { mensagensCampeonato } from '../servicos/idioma-campeonato'
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
 import Foto from '../componentes/Foto.vue'
 import Chat from '../componentes/Chat.vue'
-import { nomeDoClube, registrar } from '../servicos/clubes'
+import JogoCampeonato from '../componentes/JogoCampeonato.vue'
+import RankingCampeonato from '../componentes/RankingCampeonato.vue'
+import '../estilo/campeonato.css'
 
-const { t, locale } = useI18n()
+const { t, te, locale } = useI18n({ useScope: 'local', messages: mensagensCampeonato })
 const rota = useRoute()
-const id = String(rota.params.id)
-
 const campeonato = ref<Campeonato | null>(null)
 const participantes = ref<Participante[]>([])
 const jogos = ref<Jogo[]>([])
+const eventos = ref<EventoJogo[]>([])
 const carregando = ref(true)
 const erro = ref<string | null>(null)
-const aba = ref<'classificacao' | 'jogos' | 'regulamento'>('classificacao')
+const erroEventos = ref(false)
+const carregandoEventos = ref(false)
+const atualizado = ref('')
+const abas = ['classificacao', 'jogos', 'estatisticas', 'regulamento'] as const
+const aba = ref<typeof abas[number]>('classificacao')
+const clubeFiltro = ref('')
+const rodada = ref('')
+let versao = 0
 
-const nomeClube = (cid: string) => nomeDoClube(cid)
-
-/** Ordenação clássica: pontos, saldo, gols pró. */
-const classificacao = computed(() =>
-  [...participantes.value].sort(
-    (a, b) =>
-      Number(b.pontos) - Number(a.pontos) ||
-      Number(b.saldo_gols) - Number(a.saldo_gols) ||
-      Number(b.gols_pro) - Number(a.gols_pro),
-  ),
-)
-
-const jogosPorRodada = computed(() => {
-  const mapa = new Map<string, Jogo[]>()
-  for (const j of jogos.value) {
-    const chave = `${t('campeonatos.rodada')} ${j.rodada}`
-    if (!mapa.has(chave)) mapa.set(chave, [])
-    mapa.get(chave)!.push(j)
-  }
-  return [...mapa.entries()]
+const tabelas = computed(() => tabelasPorGrupo(participantes.value))
+const resumo = computed(() => resumoJogos(jogos.value))
+const rodadas = computed(() => agruparRodadas(jogos.value))
+const indiceRodada = computed(() => rodadas.value.findIndex(r => r.chave === rodada.value))
+const jogosRodada = computed(() => (rodadas.value.find(r => r.chave === rodada.value)?.jogos ?? [])
+  .filter(j => !clubeFiltro.value || [j.clube_a_id, j.clube_b_id].includes(clubeFiltro.value)))
+const clubesFiltro = computed(() => [...new Set(jogos.value.flatMap(j => [j.clube_a_id, j.clube_b_id]))].filter(Boolean))
+const proximos = computed(() => jogos.value.filter(j => ['AGENDADO', 'CONFIRMADO', 'EM_ANDAMENTO'].includes(j.status.toUpperCase()))
+  .sort((a, b) => (Date.parse(a.data_hora ?? '') || Infinity) - (Date.parse(b.data_hora ?? '') || Infinity)).slice(0, 3))
+const artilharia = computed(() => rankingJogadores(eventos.value, jogos.value, 'GOL'))
+const rankings = computed(() => [
+  { titulo: t('artilharia'), lista: artilharia.value },
+  { titulo: t('assistencias'), lista: rankingJogadores(eventos.value, jogos.value, 'ASSISTENCIA') },
+  { titulo: t('amarelos'), lista: rankingJogadores(eventos.value, jogos.value, 'AMARELO') },
+  { titulo: t('vermelhos'), lista: rankingJogadores(eventos.value, jogos.value, 'VERMELHO') },
+])
+const desempenhoClubes = computed(() => {
+  const linhas = tabelas.value.flatMap(g => g.linhas).filter(p => p.jogos > 0)
+  return [
+    { titulo: t('ataque'), linhas: [...linhas].sort((a, b) => Number(b.gols_pro) - Number(a.gols_pro)).slice(0, 5).map(p => ({ id: p.clube_id, valor: p.gols_pro })) },
+    { titulo: t('defesa'), linhas: [...linhas].sort((a, b) => Number(a.gols_contra) - Number(b.gols_contra)).slice(0, 5).map(p => ({ id: p.clube_id, valor: p.gols_contra })) },
+  ]
 })
+const forma = computed(() => Object.fromEntries(participantes.value.map(p => [p.clube_id, ultimosResultados(jogos.value, p.clube_id)])))
+const indicadores = computed(() => [
+  { nome: t('clubes'), valor: tabelas.value.reduce((n, g) => n + g.linhas.length, 0) },
+  { nome: t('encerrados'), valor: resumo.value.finalizados },
+  { nome: t('gols'), valor: resumo.value.gols },
+  { nome: t('media'), valor: resumo.value.media.toLocaleString(locale.value, { maximumFractionDigits: 2 }) },
+])
+const fase = (valor: string) => te(valor) ? t(valor) : valor.replaceAll('_', ' ')
+
+async function carregarEventos(id = String(rota.params.id), atual = versao) {
+  erroEventos.value = false
+  carregandoEventos.value = true
+  try {
+    const lista = await api.eventosCampeonato(id)
+    if (atual === versao) eventos.value = lista
+  } catch {
+    if (atual === versao) erroEventos.value = true
+  } finally {
+    if (atual === versao) carregandoEventos.value = false
+  }
+}
 
 async function carregar() {
+  const atual = ++versao
+  const id = String(rota.params.id)
   carregando.value = true
   erro.value = null
+  eventos.value = []
+  campeonato.value = null
   try {
-    const [c, p, g, meus] = await Promise.all([
-      api.campeonato(id),
-      api.participantes(id),
-      api.jogos(id),
-      api.meusClubes().catch(() => [] as Clube[]),
-    ])
+    const [c, p, j] = await Promise.all([api.campeonato(id), api.participantes(id), api.jogos(id)])
+    if (atual !== versao) return
     campeonato.value = c
     participantes.value = p
-    jogos.value = g
-    registrar(meus)
+    jogos.value = j
+    const primeira = rodadas.value.find(r => r.jogos.some(j => ['AGENDADO', 'CONFIRMADO', 'EM_ANDAMENTO'].includes(j.status.toUpperCase())))
+    if (!rodadas.value.some(r => r.chave === rodada.value)) rodada.value = primeira?.chave ?? rodadas.value.at(-1)?.chave ?? ''
+    atualizado.value = new Date().toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
+    void api.meusClubes().then(registrar).catch(() => {})
+    void carregarEventos(id, atual)
   } catch (e) {
-    erro.value = (e as Error).message
+    if (atual === versao) erro.value = (e as Error).message
   } finally {
-    carregando.value = false
+    if (atual === versao) carregando.value = false
   }
 }
 
-const quando = (iso?: string) => {
-  if (!iso) return '-'
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString(locale.value, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+function mudarRodada(delta: number) {
+  const alvo = rodadas.value[indiceRodada.value + delta]
+  if (alvo) rodada.value = alvo.chave
 }
-
-onMounted(carregar)
+function navegarAbas(evento: KeyboardEvent, indice: number) {
+  let proximo = indice
+  if (evento.key === 'ArrowRight') proximo = (indice + 1) % abas.length
+  else if (evento.key === 'ArrowLeft') proximo = (indice + abas.length - 1) % abas.length
+  else if (evento.key === 'Home') proximo = 0
+  else if (evento.key === 'End') proximo = abas.length - 1
+  else return
+  evento.preventDefault()
+  aba.value = abas[proximo]!
+  document.getElementById(`aba-${aba.value}`)?.focus()
+}
+watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; aba.value = 'classificacao'; void carregar() }, { immediate: true })
 </script>
 
 <template>
   <Estado :carregando="carregando" :erro="erro" @recarregar="carregar">
-    <section v-if="campeonato" class="secao py-10">
-      <RouterLink :to="{ name: 'campeonatos' }" class="text-sm font-bold text-[var(--color-tinta-fraca)] hover:text-[var(--color-marca)]">
-        ← {{ t('comum.voltar') }}
-      </RouterLink>
-
-      <header class="painel mt-4 flex flex-wrap items-center gap-4 p-6">
-        <Foto pasta="competicao" :id="campeonato.id" :nome="campeonato.nome" classe="h-16 w-16" />
-        <div class="min-w-0 flex-1">
-          <h1 class="text-2xl font-extrabold">{{ campeonato.nome }}</h1>
-          <p class="text-sm text-[var(--color-tinta-fraca)]">
-            {{ [campeonato.cidade, campeonato.formato].filter(Boolean).join(' · ') }}
-          </p>
+    <section v-if="campeonato" class="secao central-campeonato">
+      <RouterLink :to="{ name: 'campeonatos' }" class="voltar-campeonato">← {{ t('voltar') }}</RouterLink>
+      <header class="cabecalho-campeonato">
+        <div class="identidade-campeonato">
+          <Foto pasta="competicao" :id="campeonato.id" :nome="campeonato.nome" classe="h-16 w-16" />
+          <div><p class="sobretitulo">{{ t('central') }}</p><h1>{{ campeonato.nome }}</h1><p>{{ [campeonato.cidade, fase(campeonato.formato ?? '')].filter(Boolean).join(' · ') }}</p></div>
         </div>
-        <Etiqueta :status="campeonato.status ?? ''" />
+        <div class="acoes-campeonato"><Etiqueta :status="campeonato.status ?? ''" /><button type="button" class="botao-secundario" @click="carregar">↻ {{ t('atualizar') }}</button><small>{{ t('atualizado') }} {{ atualizado }}</small></div>
       </header>
 
-      <nav class="mt-6 flex flex-wrap gap-2" role="tablist">
-        <button v-for="opcao in (['classificacao', 'jogos', 'regulamento'] as const)" :key="opcao"
-                type="button" role="tab" :aria-selected="aba === opcao"
-                class="rounded-lg px-4 py-2 text-sm font-bold"
-                :class="aba === opcao
-                  ? 'bg-[var(--color-marca)] text-white'
-                  : 'border border-[var(--color-linha)] bg-white text-[var(--color-tinta-suave)]'"
-                @click="aba = opcao">{{ t(`campeonatos.${opcao}`) }}</button>
+      <dl class="indicadores-campeonato"><div v-for="item in indicadores" :key="item.nome"><dt>{{ item.nome }}</dt><dd>{{ item.valor }}</dd></div></dl>
+      <nav class="abas-campeonato" role="tablist" :aria-label="t('central')">
+        <button v-for="(opcao, indice) in abas" :id="`aba-${opcao}`" :key="opcao" type="button" role="tab" :aria-selected="aba === opcao" :aria-controls="`painel-${opcao}`" :tabindex="aba === opcao ? 0 : -1" @click="aba = opcao" @keydown="navegarAbas($event, indice)">{{ t(opcao) }}</button>
       </nav>
 
-      <!-- classificação -->
-      <div v-if="aba === 'classificacao'" class="painel mt-4 overflow-x-auto">
-        <table class="w-full min-w-[640px] text-sm">
-          <thead>
-            <tr class="border-b border-[var(--color-linha)] text-left text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">
-              <th class="px-4 py-3">{{ t('tabela.posicao') }}</th>
-              <th class="px-4 py-3">{{ t('tabela.clube') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.pontos') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.vitorias') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.empates') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.derrotas') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.golsPro') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.golsContra') }}</th>
-              <th class="px-3 py-3 text-center">{{ t('tabela.saldo') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(p, i) in classificacao" :key="p.clube_id"
-                class="border-b border-[var(--color-linha)] last:border-0"
-                :class="i % 2 ? 'bg-[var(--color-zebra)]' : ''">
-              <td class="px-4 py-3 font-bold">{{ i + 1 }}</td>
-              <td class="px-4 py-3">
-                <span class="font-semibold">{{ nomeClube(p.clube_id) }}</span>
-                <span v-if="p.grupo_fase" class="ml-2 text-xs text-[var(--color-tinta-fraca)]">
-                  {{ t('campeonatos.grupo') }} {{ p.grupo_fase }}
-                </span>
-              </td>
-              <td class="px-3 py-3 text-center font-extrabold text-[var(--color-marca)]">{{ p.pontos }}</td>
-              <td class="px-3 py-3 text-center">{{ p.vitorias }}</td>
-              <td class="px-3 py-3 text-center">{{ p.empates }}</td>
-              <td class="px-3 py-3 text-center">{{ p.derrotas }}</td>
-              <td class="px-3 py-3 text-center">{{ p.gols_pro }}</td>
-              <td class="px-3 py-3 text-center">{{ p.gols_contra }}</td>
-              <td class="px-3 py-3 text-center">{{ p.saldo_gols }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div :id="`painel-${aba}`" role="tabpanel" :aria-labelledby="`aba-${aba}`" tabindex="0" class="conteudo-campeonato">
+        <template v-if="aba === 'classificacao'">
+          <div class="grade-classificacao">
+            <div class="min-w-0 space-y-5">
+              <section v-for="tabela in tabelas" :key="tabela.grupo" class="painel tabela-painel">
+                <h2 class="titulo-painel">{{ tabela.grupo ? `${t('grupo')} ${tabela.grupo}` : t('classificacao') }}</h2>
+                <div class="rolagem-tabela" tabindex="0" :aria-label="t('classificacao')">
+                  <table class="tabela-campeonato">
+                    <caption class="sr-only">{{ campeonato.nome }} — {{ t('classificacao') }} {{ tabela.grupo }}</caption>
+                    <thead><tr><th scope="col">#</th><th scope="col" class="coluna-clube">{{ t('clube') }}</th><th v-for="col in ['P', 'J', 'V', 'E', 'D', 'GP', 'GC', 'SG', '%']" :key="col" scope="col">{{ col }}</th><th scope="col">{{ t('ultimos') }}</th></tr></thead>
+                    <tbody><tr v-for="(p, i) in tabela.linhas" :key="p.clube_id">
+                      <td class="posicao-tabela">{{ i + 1 }}</td>
+                      <th scope="row" class="coluna-clube"><div class="nome-tabela"><Foto pasta="clube" :id="p.clube_id" :nome="nomeDoClube(p.clube_id)" classe="h-7 w-7" /><span>{{ nomeDoClube(p.clube_id) }}</span></div></th>
+                      <td class="pontos-tabela">{{ p.pontos }}</td><td>{{ p.jogos }}</td><td>{{ p.vitorias }}</td><td>{{ p.empates }}</td><td>{{ p.derrotas }}</td><td>{{ p.gols_pro }}</td><td>{{ p.gols_contra }}</td><td>{{ p.saldo_gols }}</td><td>{{ p.aproveitamento }}</td>
+                      <td><div class="forma-time"><span v-for="(resultado, index) in forma[p.clube_id]" :key="index" :class="`resultado-${resultado}`" :title="t(resultado)" :aria-label="t(resultado)">{{ resultado }}</span><span v-if="!forma[p.clube_id]?.length">—</span></div></td>
+                    </tr></tbody>
+                  </table>
+                </div>
+              </section>
+              <p v-if="!tabelas.length" class="painel vazio-campeonato">{{ t('semTabela') }}</p>
+              <p class="legenda-tabela">{{ t('legenda') }}</p><p class="legenda-tabela">{{ t('ordem') }}</p>
+            </div>
+            <aside class="painel agenda-campeonato"><h2 class="titulo-painel">{{ t('proximos') }}</h2><JogoCampeonato v-for="j in proximos" :key="j.id" :jogo="j" /><p v-if="!proximos.length" class="vazio-campeonato">{{ t('semAgenda') }}</p><button type="button" class="link-todos" @click="aba = 'jogos'">{{ t('verJogos') }} →</button></aside>
+          </div>
+        </template>
 
-      <!-- jogos -->
-      <div v-else-if="aba === 'jogos'" class="mt-4 space-y-6">
-        <div v-for="[rodada, lista] in jogosPorRodada" :key="rodada">
-          <h2 class="mb-2 text-sm font-bold uppercase tracking-wide text-[var(--color-tinta-fraca)]">{{ rodada }}</h2>
-          <ul class="painel divide-y divide-[var(--color-linha)]">
-            <li v-for="j in lista" :key="j.id" class="flex flex-wrap items-center gap-3 p-4">
-              <p class="flex-1 text-right font-semibold">{{ nomeClube(j.clube_a_id) }}</p>
-              <p class="shrink-0 rounded-lg bg-[var(--color-papel)] px-3 py-1 font-extrabold">
-                {{ j.status === 'FINALIZADO' ? `${j.placar_a} - ${j.placar_b}` : t('amistosos.versus') }}
-              </p>
-              <p class="flex-1 font-semibold">{{ nomeClube(j.clube_b_id) }}</p>
-              <div class="w-full text-center text-xs text-[var(--color-tinta-fraca)]">
-                {{ quando(j.data_hora) }} · {{ j.local || '-' }}
-              </div>
-            </li>
-          </ul>
+        <section v-else-if="aba === 'jogos'" class="painel">
+          <div class="filtros-jogos">
+            <div class="controle-rodada"><button type="button" class="botao-secundario" :disabled="indiceRodada <= 0" :aria-label="t('anterior')" @click="mudarRodada(-1)">←</button>
+              <select v-model="rodada" class="campo" :aria-label="t('rodada')"><option v-for="r in rodadas" :key="r.chave" :value="r.chave">{{ fase(r.fase) }} · {{ t('rodada') }} {{ r.rodada }}</option></select>
+              <button type="button" class="botao-secundario" :disabled="indiceRodada < 0 || indiceRodada >= rodadas.length - 1" :aria-label="t('proxima')" @click="mudarRodada(1)">→</button>
+            </div>
+            <select v-model="clubeFiltro" class="campo filtro-clube" :aria-label="t('filtrar')"><option value="">{{ t('todos') }}</option><option v-for="cid in clubesFiltro" :key="cid" :value="cid">{{ nomeDoClube(cid) }}</option></select>
+          </div>
+          <div class="grade-jogos"><JogoCampeonato v-for="j in jogosRodada" :key="j.id" :jogo="j" /></div><p v-if="!jogosRodada.length" class="vazio-campeonato" role="status">{{ t('semJogos') }}</p>
+        </section>
+
+        <template v-else-if="aba === 'estatisticas'">
+          <p class="nota-estatisticas">{{ t('fonte') }}</p>
+          <div class="grade-rankings"><section v-for="ranking in desempenhoClubes" :key="ranking.titulo" class="painel"><h2 class="titulo-painel">{{ ranking.titulo }}</h2><ol class="ranking-lista"><li v-for="(p, i) in ranking.linhas" :key="p.id"><span class="ranking-posicao">{{ i + 1 }}</span><Foto pasta="clube" :id="p.id" :nome="nomeDoClube(p.id)" classe="h-9 w-9" /><strong class="ranking-nome">{{ nomeDoClube(p.id) }}</strong><strong class="ranking-valor">{{ p.valor }}</strong></li></ol><p v-if="!ranking.linhas.length" class="vazio-campeonato">{{ t('semEstatisticas') }}</p></section></div>
+        </template>
+
+        <section v-else class="painel p-6"><h2 class="titulo-regulamento">{{ t('regulamento') }}</h2><p class="whitespace-pre-line">{{ campeonato.regulamento || t('semRegulamento') }}</p></section>
+
+        <div v-if="aba === 'classificacao' || aba === 'estatisticas'" class="area-artilharia" :aria-busy="carregandoEventos">
+          <p v-if="carregandoEventos" class="painel vazio-campeonato" role="status">{{ t('carregando') }}</p>
+          <div v-else-if="erroEventos" class="painel erro-ranking" role="alert"><p>{{ t('falhaEventos') }}</p><button type="button" class="botao-secundario" @click="carregarEventos()">{{ t('tentar') }}</button></div>
+          <div v-else class="grade-rankings"><RankingCampeonato v-for="ranking in (aba === 'classificacao' ? rankings.slice(0, 2) : rankings)" :key="ranking.titulo" :titulo="ranking.titulo" :lista="ranking.lista" /></div>
+          <p v-if="aba === 'classificacao'" class="nota-estatisticas">{{ t('fonte') }}</p>
         </div>
-        <p v-if="!jogos.length" class="painel p-10 text-center text-[var(--color-tinta-fraca)]">
-          {{ t('campeonatos.vazio') }}
-        </p>
       </div>
-
-      <!-- regulamento -->
-      <div v-else class="painel mt-4 p-6">
-        <p class="whitespace-pre-line text-[var(--color-tinta-suave)]">
-          {{ campeonato.regulamento || t('comum.naoInformado') }}
-        </p>
-      </div>
-
-      <Chat class="mt-6" contexto="campeonatos" :id="campeonato.id" />
+      <Chat class="mt-8" contexto="campeonatos" :id="campeonato.id" :key="campeonato.id" />
     </section>
   </Estado>
 </template>

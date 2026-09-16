@@ -6,8 +6,8 @@ const ano = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="mt-16 border-t border-[var(--color-linha)] bg-white">
-    <div class="secao flex flex-col gap-3 py-8 text-sm text-[var(--color-tinta-fraca)] sm:flex-row sm:items-center sm:justify-between">
+  <footer class="rodape-site mt-16 border-t">
+    <div class="secao flex flex-col gap-3 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
       <span>© {{ ano }} {{ t('marca') }}. {{ t('rodape.direitos') }}</span>
       <nav class="flex flex-wrap gap-x-5 gap-y-2 font-semibold">
         <a href="https://www.bibiprogramadortop.win/privacidade" class="hover:text-[var(--color-marca)]">{{ t('rodape.privacidade') }}</a>
