@@ -2,13 +2,14 @@
 /**
  * Rodapé.
  *
- * Tudo aqui tem o mesmo peso visual de propósito: são avisos legais e o nome do
- * site, não navegação. Antes o bloco misturava tamanhos e um link em negrito
- * para a loja, o que dava a três linhas de aviso a aparência de um menu.
+ * Antes eram três blocos soltos — o nome do site, os links e o copyright — e o
+ * nome aparecia duas vezes, já que a linha de copyright também o diz. Agora são
+ * duas linhas centradas, com o mesmo tamanho de texto: é aviso legal, não
+ * navegação.
  *
- * O hover também não vem de utilitária do Tailwind: `hover:text-[…]` entra na
- * layer `utilities` e ganharia do tema, pintando o link de verde escuro em cima
- * de um rodapé verde escuro.
+ * O hover não vem de utilitária do Tailwind de propósito: `hover:text-[…]`
+ * entra na layer `utilities`, resolvida depois de `components`, e pintaria o
+ * link de verde escuro em cima de um rodapé verde escuro.
  */
 import { useI18n } from 'vue-i18n'
 
@@ -24,8 +25,6 @@ const links = [
 <template>
   <footer class="rodape-site border-t">
     <div class="secao rodape-conteudo">
-      <p class="rodape-marca">{{ t('marca') }}</p>
-
       <nav class="rodape-links" :aria-label="t('rodape.legal')">
         <a v-for="link in links" :key="link.chave" :href="link.href" class="rodape-link">
           {{ t(`rodape.${link.chave}`) }}

@@ -175,31 +175,27 @@
   .cabecalho-site .botao-primario { background: white; color: var(--color-marca); }
   .cabecalho-site :focus-visible { outline-color: var(--color-destaque); }
   /*
-   * Rodapé: uma só escala de texto.
+   * Rodapé: centrado, uma escala de texto.
    *
-   * Nome do site, links legais e linha de copyright compartilham tamanho e
-   * cor; o que separa um do outro é a opacidade, não o peso. Assim o bloco lê
-   * como um rodapé e não como mais um menu.
+   * Links em cima, copyright embaixo, os dois no eixo da página. Alinhar um em
+   * cada ponta deixava os blocos soltos numa tela larga, com metros de verde
+   * vazio no meio de três frases curtas.
    */
   .rodape-site { margin-top: 3rem; background: #07552f; color: #d5e8dd; border-color: #0a6b3c; }
   .rodape-conteudo {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: .4rem 1.25rem;
+    gap: .35rem;
     padding: .9rem 1rem;
-    font-size: .74rem;
+    font-size: .73rem;
     line-height: 1.5;
+    text-align: center;
   }
-  .rodape-marca { font-weight: 800; letter-spacing: -.02em; color: white; }
-  .rodape-links { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; }
-  .rodape-link { color: #d5e8dd; transition: color .15s; }
-  .rodape-link:hover { color: white; text-decoration: underline; text-underline-offset: 3px; }
   .rodape-direitos { color: #9dc2ad; }
+  .rodape-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .2rem .75rem; }
+  .rodape-link { color: #d5e8dd; transition: color .15s; }
+  .rodape-link + .rodape-link::before { content: '·'; margin-right: .75rem; color: #3f7d5c; }
+  .rodape-link:hover { color: white; text-decoration: underline; text-underline-offset: 3px; }
   .rodape-site :focus-visible { outline-color: var(--color-destaque); }
-
-  @media (max-width: 640px) {
-    .rodape-conteudo { flex-direction: column; align-items: flex-start; gap: .85rem; }
-  }
 }
