@@ -19,12 +19,7 @@ const rotas: RouteRecordRaw[] = [
     meta: { exigeSessao: true },
   },
   { path: '/peladas', name: 'peladas', component: () => import('../paginas/Peladas.vue') },
-  {
-    path: '/peladas/:id',
-    name: 'pelada',
-    component: () => import('../paginas/Pelada.vue'),
-    meta: { exigeSessao: true },
-  },
+  { path: '/peladas/:id', name: 'pelada', component: () => import('../paginas/Pelada.vue') },
   { path: '/campeonatos', name: 'campeonatos', component: () => import('../paginas/Campeonatos.vue') },
   {
     path: '/campeonatos/novo',
@@ -32,18 +27,8 @@ const rotas: RouteRecordRaw[] = [
     component: () => import('../paginas/CriarCampeonato.vue'),
     meta: { exigeSessao: true },
   },
-  {
-    path: '/campeonatos/:id',
-    name: 'campeonato',
-    component: () => import('../paginas/Campeonato.vue'),
-    meta: { exigeSessao: true },
-  },
-  {
-    path: '/amistosos',
-    name: 'amistosos',
-    component: () => import('../paginas/Amistosos.vue'),
-    meta: { exigeSessao: true },
-  },
+  { path: '/campeonatos/:id', name: 'campeonato', component: () => import('../paginas/Campeonato.vue') },
+  { path: '/amistosos', name: 'amistosos', component: () => import('../paginas/Amistosos.vue') },
   {
     path: '/amistosos/novo',
     name: 'criar-amistoso',
@@ -66,6 +51,13 @@ export const router = createRouter({
   scrollBehavior: (_para, _de, salvo) => salvo ?? { top: 0 },
 })
 
+/**
+ * Só o que age exige sessão.
+ *
+ * Ler pelada, campeonato, amistoso e clube é aberto — quem chega pelo Google vê
+ * a página inteira sem conta. O login entra na hora de participar, criar ou
+ * conversar, e aí cada tela pede por si, com o destino guardado para voltar.
+ */
 router.beforeEach(async (para) => {
   if (!para.meta.exigeSessao) return true
 

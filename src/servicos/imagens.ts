@@ -26,6 +26,17 @@ const PREFIXO: Record<Pasta, string> = {
 
 export const chaveDe = (pasta: Pasta, id: string) => `${PREFIXO[pasta]}${id}.jpg`
 
+/**
+ * Escudo, capa de grupo e de campeonato sem sessão.
+ *
+ * `GET /publico/imagem/{pasta}/{id}` responde 302 para a URL assinada do S3, e
+ * redirecionamento é a única coisa que uma tag <img> sabe seguir sozinha. Foto
+ * de jogador não tem equivalente aqui de propósito: rosto de pessoa não é
+ * vitrine.
+ */
+const urlPublica = (pasta: Pasta, id: string) =>
+  (pasta === 'perfil' ? null : `${API_BASE}/publico/imagem/${pasta}/${id}`)
+
 /** Chave -> URL assinada. Guardado enquanto a aba viver. */
 const cache = new Map<string, string>()
 /** Chaves já pedidas, para não disparar o mesmo lote duas vezes. */
@@ -66,6 +77,9 @@ export async function urlAssinada(pasta: Pasta, id: string): Promise<string | nu
   if (!id) return null
   const chave = chaveDe(pasta, id)
   if (cache.has(chave)) return cache.get(chave)!
+
+  // Visitante deslogado não tem token para pedir o lote; usa a rota pública.
+  if (!(await tokenAtual())) return urlPublica(pasta, id)
 
   if (!emVoo.has(chave)) {
     fila.add(chave)

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api, type Campeonato } from '../servicos/api'
+import { api, publico, type Campeonato } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
+import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
 import Foto from '../componentes/Foto.vue'
 
@@ -18,7 +19,7 @@ async function carregar() {
   carregando.value = true
   erro.value = null
   try {
-    if (!sessao.autenticado) { lista.value = []; return }
+    if (!sessao.autenticado) { lista.value = await publico.campeonatos(); return }
     lista.value = aba.value === 'meus' ? await api.meusCampeonatos() : await api.todosCampeonatos()
   } catch (e) {
     erro.value = (e as Error).message
@@ -34,7 +35,7 @@ onMounted(carregar)
     <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <h1 class="text-3xl font-extrabold">{{ t('campeonatos.titulo') }}</h1>
       <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-campeonato' }" class="botao-primario">+ {{ t('criar.campeonato') }}</RouterLink>
-      <div class="flex gap-2" role="tablist">
+      <div v-if="sessao.autenticado" class="flex gap-2" role="tablist">
         <button
           v-for="opcao in (['descobrir', 'meus'] as const)" :key="opcao" type="button" role="tab"
           :aria-selected="aba === opcao"
@@ -44,6 +45,8 @@ onMounted(carregar)
         >{{ t(`campeonatos.${opcao}`) }}</button>
       </div>
     </header>
+
+    <ConviteEntrar v-if="!sessao.autenticado" formato="aviso" />
 
     <Estado :carregando="carregando" :erro="erro" :vazio="!lista.length"
             :texto-vazio="t('campeonatos.vazio')" @recarregar="carregar">

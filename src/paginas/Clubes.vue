@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api, type Clube } from '../servicos/api'
+import { api, publico, type Clube } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
+import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 
 const { t } = useI18n()
 const sessao = usarSessao()
@@ -18,8 +19,10 @@ async function carregar() {
   carregando.value = true
   erro.value = null
   try {
-    if (cidade.value.trim()) lista.value = await api.clubesPorCidade(cidade.value.trim())
-    else lista.value = sessao.autenticado ? await api.meusClubes() : []
+    const busca = cidade.value.trim()
+    if (!sessao.autenticado) lista.value = await publico.clubes(busca)
+    else if (busca) lista.value = await api.clubesPorCidade(busca)
+    else lista.value = await api.meusClubes()
   } catch (e) {
     erro.value = (e as Error).message
   } finally {
@@ -37,6 +40,8 @@ onMounted(carregar)
 <template>
   <section class="secao py-10">
     <h1 class="mb-6 text-3xl font-extrabold">{{ t('clubes.titulo') }}</h1>
+
+    <ConviteEntrar v-if="!sessao.autenticado" formato="aviso" />
 
     <form class="mb-6 flex flex-wrap gap-2" @submit.prevent="carregar">
       <input v-model="cidade" class="campo max-w-xs" :placeholder="t('clubes.buscar')" />
@@ -64,6 +69,7 @@ onMounted(carregar)
                   :disabled="pedidos[c.id]" @click="entrar(c)">
             {{ pedidos[c.id] ? t('peladas.pedidoEnviado') : t('clubes.entrar') }}
           </button>
+          <ConviteEntrar v-else-if="!sessao.autenticado" classe="mt-4 w-full" />
         </li>
       </ul>
     </Estado>

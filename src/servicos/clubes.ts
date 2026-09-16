@@ -12,7 +12,8 @@
  */
 
 import { reactive } from 'vue'
-import { api, type Clube } from './api'
+import { api, publico, type Clube } from './api'
+import { auth } from './firebase'
 
 const conhecidos = reactive<Record<string, Clube | null>>({})
 const buscando = new Set<string>()
@@ -34,8 +35,10 @@ export function nomeDoClube(id: string, ausente = '—'): string {
 
   if (!buscando.has(id)) {
     buscando.add(id)
-    api
-      .clube(id)
+    // Sem sessão, a mesma consulta existe na vitrine pública — devolve menos
+    // campos, mas o nome, que é o que a tela precisa, está lá.
+    const pedir = auth.currentUser ? api.clube(id) : publico.clube(id)
+    pedir
       .then((c) => {
         conhecidos[id] = c
       })

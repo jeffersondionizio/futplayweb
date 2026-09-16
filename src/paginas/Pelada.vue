@@ -2,12 +2,15 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api, type Grupo, type Jogador } from '../servicos/api'
+import { api, publico, type Grupo, type Jogador } from '../servicos/api'
+import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
 import Chat from '../componentes/Chat.vue'
+import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 
 const { t, locale } = useI18n()
+const sessao = usarSessao()
 const rota = useRoute()
 const id = String(rota.params.id)
 
@@ -53,6 +56,13 @@ async function carregar() {
   carregando.value = true
   erro.value = null
   try {
+    // A vitrine pública não traz membros nem ranking de propósito: são dados de
+    // pessoas. O visitante vê onde, quando e quanto custa — e o convite a entrar.
+    if (!sessao.autenticado) {
+      grupo.value = await publico.pelada(id)
+      membros.value = []
+      return
+    }
     const [g, m] = await Promise.all([api.grupo(id), api.membrosDoGrupo(id).catch(() => [] as Jogador[])])
     grupo.value = g
     membros.value = m
@@ -87,10 +97,11 @@ onMounted(carregar)
           <h1 class="text-2xl font-extrabold">{{ grupo.nome }}</h1>
           <p class="text-sm text-[var(--color-tinta-fraca)]">{{ grupo.cidade || t('comum.naoInformado') }}</p>
         </div>
+        <ConviteEntrar v-if="!sessao.autenticado" />
       </header>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-3">
-        <dl class="painel grid grid-cols-2 gap-4 p-6 lg:col-span-1">
+        <dl class="painel grid grid-cols-2 gap-4 p-6" :class="sessao.autenticado ? 'lg:col-span-1' : 'lg:col-span-3'">
           <div>
             <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ t('peladas.quando') }}</dt>
             <dd class="font-semibold">{{ grupo.data_peladaproxima ? quando(grupo.data_peladaproxima) : (grupo.dia_semana || '-') }}</dd>
@@ -109,7 +120,8 @@ onMounted(carregar)
           </div>
         </dl>
 
-        <div class="painel overflow-hidden lg:col-span-2">
+        <!-- Ranking é scout de atleta: só para quem está dentro. -->
+        <div v-if="sessao.autenticado" class="painel overflow-hidden lg:col-span-2">
           <h2 class="border-b border-[var(--color-linha)] px-6 py-4 font-bold">
             {{ t('home.recursos.ranking.titulo') }}
           </h2>
@@ -150,7 +162,13 @@ onMounted(carregar)
         </ul>
       </div>
 
-      <Chat class="mt-6" contexto="grupo" :id="grupo.id" />
+      <Chat v-if="sessao.autenticado" class="mt-6" contexto="grupo" :id="grupo.id" />
+      <ConviteEntrar
+        v-else
+        formato="aviso"
+        class="mt-6"
+        :texto="t('comum.entrarParaConversar')"
+      />
     </section>
   </Estado>
 </template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api, type Grupo } from '../servicos/api'
+import { api, publico, type Grupo } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
+import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 
 const { t, locale } = useI18n()
 const sessao = usarSessao()
@@ -22,15 +23,20 @@ async function carregar() {
   carregando.value = true
   erro.value = null
   try {
-    if (aba.value === 'minhas') {
-      lista.value = sessao.autenticado ? await api.meusGrupos() : []
-    } else if (cidade.value.trim()) {
-      lista.value = await api.gruposPorCidade(cidade.value.trim())
-    } else {
-      // Sem cidade informada, mostra os grupos de que a pessoa participa —
-      // não existe rota de "todos os grupos", e nem deveria: seria um Scan.
-      lista.value = sessao.autenticado ? await api.meusGrupos() : []
+    const busca = cidade.value.trim()
+
+    // Deslogado só existe a vitrine pública, e é o que a aba "minhas" nem chega
+    // a oferecer — ela some do template nesse caso.
+    if (!sessao.autenticado) {
+      lista.value = await publico.peladas(busca)
+      return
     }
+
+    if (aba.value === 'minhas') lista.value = await api.meusGrupos()
+    else if (busca) lista.value = await api.gruposPorCidade(busca)
+    // Sem cidade informada, mostra os grupos de que a pessoa participa — não
+    // existe rota autenticada de "todos os grupos", e nem deveria: seria um Scan.
+    else lista.value = await api.meusGrupos()
   } catch (e) {
     erro.value = (e as Error).message
   } finally {
@@ -65,7 +71,7 @@ onMounted(carregar)
         <p class="text-[var(--color-tinta-suave)]">{{ t('home.subtitulo') }}</p>
       </div>
 
-      <div class="flex gap-2" role="tablist">
+      <div v-if="sessao.autenticado" class="flex gap-2" role="tablist">
         <button
           v-for="opcao in (['proximas', 'minhas'] as const)"
           :key="opcao"
@@ -80,6 +86,8 @@ onMounted(carregar)
         >{{ t(`peladas.${opcao}`) }}</button>
       </div>
     </header>
+
+    <ConviteEntrar v-if="!sessao.autenticado" formato="aviso" />
 
     <form class="mb-6 flex flex-wrap gap-2" @submit.prevent="carregar">
       <input v-model="cidade" class="campo max-w-xs" :placeholder="t('peladas.buscarCidade')" />
@@ -140,6 +148,7 @@ onMounted(carregar)
             >
               {{ pedidos[g.id] || g.pedido_pendente ? t('peladas.pedidoEnviado') : t('peladas.pedirEntrada') }}
             </button>
+            <ConviteEntrar v-else-if="!sessao.autenticado" classe="flex-1" />
           </div>
         </li>
       </ul>

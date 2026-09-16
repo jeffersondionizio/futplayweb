@@ -32,7 +32,7 @@ export class ErroApi extends Error {
 type Opcoes = {
   metodo?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   corpo?: unknown
-  /** Rotas públicas (nenhuma hoje) podem dispensar o token. */
+  /** Rotas /publico/* dispensam o token — é o que permite navegar deslogado. */
   semAutenticacao?: boolean
 }
 
@@ -275,6 +275,44 @@ export const api = {
     requisitar<Mensagem>(`/${contexto}/${id}/chat`, { metodo: 'POST', corpo: { texto } }),
 }
 
-/** URL da foto servida pela própria API, que assina e redireciona para o S3. */
-export const urlImagem = (pasta: 'perfil' | 'clube' | 'grupo' | 'competicao', id: string) =>
-  id ? `${API_BASE}/imagem/${pasta}/${id}` : ''
+/**
+ * Leitura aberta, em /publico/*.
+ *
+ * Devolve só campos de vitrine e nunca exige sessão. As telas usam estas
+ * chamadas enquanto ninguém entrou, e trocam para as autenticadas depois do
+ * login — que trazem o que é seu: participação, pedido pendente, chat.
+ */
+export const publico = {
+  destaques: () =>
+    requisitar<{ campeonatos: Campeonato[]; peladas: Grupo[] }>('/publico/destaques', { semAutenticacao: true }),
+
+  campeonatos: (cidade?: string) =>
+    requisitar<Campeonato[]>(`/publico/campeonatos${consulta({ cidade })}`, { semAutenticacao: true }),
+  campeonato: (id: string) =>
+    requisitar<Campeonato>(`/publico/campeonatos/${id}`, { semAutenticacao: true }),
+  participantes: (id: string) =>
+    requisitar<Participante[]>(`/publico/campeonatos/${id}/participantes`, { semAutenticacao: true }),
+  jogos: (id: string) =>
+    requisitar<Jogo[]>(`/publico/campeonatos/${id}/jogos`, { semAutenticacao: true }),
+  eventos: (id: string) =>
+    requisitar<EventoJogo[]>(`/publico/campeonatos/${id}/eventos`, { semAutenticacao: true }),
+
+  amistosos: (abertos = true, cidade?: string) =>
+    requisitar<Amistoso[]>(
+      `/publico/amistosos${consulta({ abertos: abertos ? 'true' : undefined, cidade })}`,
+      { semAutenticacao: true },
+    ),
+
+  clubes: (cidade: string) =>
+    requisitar<Clube[]>(`/publico/clubes${consulta({ cidade })}`, { semAutenticacao: true }),
+  clube: (id: string) => requisitar<Clube>(`/publico/clubes/${id}`, { semAutenticacao: true }),
+
+  peladas: (cidade: string) =>
+    requisitar<Grupo[]>(`/publico/peladas${consulta({ cidade })}`, { semAutenticacao: true }),
+  pelada: (id: string) => requisitar<Grupo>(`/publico/peladas/${id}`, { semAutenticacao: true }),
+}
+
+/** Escudo ou capa servida sem token. Foto de jogador continua exigindo sessão. */
+export const urlImagemPublica = (pasta: 'clube' | 'grupo' | 'competicao', id: string) =>
+  (id ? `${API_BASE}/publico/imagem/${pasta}/${id}` : '')
+

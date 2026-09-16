@@ -2,7 +2,8 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api, type Campeonato, type Participante, type Jogo, type EventoJogo } from '../servicos/api'
+import { api, publico, type Campeonato, type Participante, type Jogo, type EventoJogo } from '../servicos/api'
+import { usarSessao } from '../estado/sessao'
 import { nomeDoClube, registrar } from '../servicos/clubes'
 import { resumoJogos, tabelasPorGrupo, ultimosResultados, rankingJogadores, agruparRodadas } from '../servicos/estatisticas'
 import { mensagensCampeonato } from '../servicos/idioma-campeonato'
@@ -12,9 +13,11 @@ import Foto from '../componentes/Foto.vue'
 import Chat from '../componentes/Chat.vue'
 import JogoCampeonato from '../componentes/JogoCampeonato.vue'
 import RankingCampeonato from '../componentes/RankingCampeonato.vue'
+import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 import '../estilo/campeonato.css'
 
 const { t, te, locale } = useI18n({ useScope: 'local', messages: mensagensCampeonato })
+const sessao = usarSessao()
 const rota = useRoute()
 const campeonato = ref<Campeonato | null>(null)
 const participantes = ref<Participante[]>([])
@@ -67,7 +70,9 @@ async function carregarEventos(id = String(rota.params.id), atual = versao) {
   erroEventos.value = false
   carregandoEventos.value = true
   try {
-    const lista = await api.eventosCampeonato(id)
+    const lista = sessao.autenticado
+      ? await api.eventosCampeonato(id)
+      : await publico.eventos(id)
     if (atual === versao) eventos.value = lista
   } catch {
     if (atual === versao) erroEventos.value = true
@@ -84,7 +89,10 @@ async function carregar() {
   eventos.value = []
   campeonato.value = null
   try {
-    const [c, p, j] = await Promise.all([api.campeonato(id), api.participantes(id), api.jogos(id)])
+    // A central inteira é a mesma para quem entrou e para quem só está olhando;
+    // muda a origem dos dados, não o que a tela mostra.
+    const fonte = sessao.autenticado ? api : publico
+    const [c, p, j] = await Promise.all([fonte.campeonato(id), fonte.participantes(id), fonte.jogos(id)])
     if (atual !== versao) return
     campeonato.value = c
     participantes.value = p
@@ -92,7 +100,7 @@ async function carregar() {
     const primeira = rodadas.value.find(r => r.jogos.some(j => ['AGENDADO', 'CONFIRMADO', 'EM_ANDAMENTO'].includes(j.status.toUpperCase())))
     if (!rodadas.value.some(r => r.chave === rodada.value)) rodada.value = primeira?.chave ?? rodadas.value.at(-1)?.chave ?? ''
     atualizado.value = new Date().toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
-    void api.meusClubes().then(registrar).catch(() => {})
+    if (sessao.autenticado) void api.meusClubes().then(registrar).catch(() => {})
     void carregarEventos(id, atual)
   } catch (e) {
     if (atual === versao) erro.value = (e as Error).message
@@ -128,7 +136,7 @@ watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; a
           <Foto pasta="competicao" :id="campeonato.id" :nome="campeonato.nome" classe="h-16 w-16" />
           <div><p class="sobretitulo">{{ t('central') }}</p><h1>{{ campeonato.nome }}</h1><p>{{ [campeonato.cidade, fase(campeonato.formato ?? '')].filter(Boolean).join(' · ') }}</p></div>
         </div>
-        <div class="acoes-campeonato"><Etiqueta :status="campeonato.status ?? ''" /><button type="button" class="botao-secundario" @click="carregar">↻ {{ t('atualizar') }}</button><small>{{ t('atualizado') }} {{ atualizado }}</small></div>
+        <div class="acoes-campeonato"><Etiqueta :status="campeonato.status ?? ''" /><ConviteEntrar v-if="!sessao.autenticado" /><button type="button" class="botao-secundario" @click="carregar">↻ {{ t('atualizar') }}</button><small>{{ t('atualizado') }} {{ atualizado }}</small></div>
       </header>
 
       <dl class="indicadores-campeonato"><div v-for="item in indicadores" :key="item.nome"><dt>{{ item.nome }}</dt><dd>{{ item.valor }}</dd></div></dl>
@@ -187,7 +195,8 @@ watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; a
           <p v-if="aba === 'classificacao'" class="nota-estatisticas">{{ t('fonte') }}</p>
         </div>
       </div>
-      <Chat class="mt-8" contexto="campeonatos" :id="campeonato.id" :key="campeonato.id" />
+      <Chat v-if="sessao.autenticado" class="mt-8" contexto="campeonatos" :id="campeonato.id" :key="campeonato.id" />
+      <ConviteEntrar v-else formato="aviso" class="mt-8" :texto="t('entrarParaConversar')" />
     </section>
   </Estado>
 </template>
