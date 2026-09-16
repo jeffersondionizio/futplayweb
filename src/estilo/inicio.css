@@ -39,7 +39,7 @@
 @media (min-width: 768px) { .inicio-hero > .secao { grid-template-columns: 1.15fr 1fr; gap: 4rem; padding-top: 4.5rem; padding-bottom: 4.5rem; } }
 @media (max-width: 640px) { .inicio-hero > .secao { padding-top: 3rem; padding-bottom: 2.5rem; gap: 2.25rem; }.inicio-guia { padding: 1.25rem; }.inicio-acoes { gap: .6rem; }.inicio-acoes > * { flex: 1 1 auto; }.inicio-convite { padding: 1.5rem; }.inicio-convite .botao-primario { width: 100%; } }
 @media (max-width: 640px) {
-  .pagina-inicio { padding-bottom: 84px; }
+  body:has(.pagina-inicio) { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   .instalar-app { justify-content: center; }
   .instalar-mobile { position: fixed; z-index: 35; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .8rem 1rem calc(.8rem + env(safe-area-inset-bottom)); background: #fffffff5; backdrop-filter: blur(12px); border-top: 1px solid #dce8df; box-shadow: 0 -4px 20px #0a34200d; }
   .instalar-mobile strong { display: block; color: #076b3b; font-size: .95rem; }.instalar-mobile div > span { display: block; font-size: .65rem; color: var(--color-tinta-fraca); }.instalar-mobile .botao-primario { font-size: .8rem; padding: .6rem .9rem; }

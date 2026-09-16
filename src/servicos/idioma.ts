@@ -50,6 +50,8 @@ const ptBR = {
   },
   home: {
     appSelo: 'FutPlay para Android',
+    primeiroPasso: 'Instale e entre com o Google',
+    primeiroPassoTexto: 'Baixe na Google Play e use sua conta para começar a jogar.',
     appTitulo: 'Sua próxima pelada começa no FutPlay.',
     appTexto: 'Leve seu futebol no bolso. Encontre peladas, reúna seu time e acompanhe cada rodada do campeonato pelo aplicativo.',
     instalar: 'Instalar o FutPlay',
@@ -273,6 +275,8 @@ const en: typeof ptBR = {
   },
   home: {
     appSelo: 'FutPlay for Android',
+    primeiroPasso: 'Install and sign in with Google',
+    primeiroPassoTexto: 'Download from Google Play and use your account to get started.',
     appTitulo: 'Your next game starts with FutPlay.',
     appTexto: 'Take your football with you. Find pickup games, bring your team together and follow every tournament round in the app.',
     instalar: 'Install FutPlay',

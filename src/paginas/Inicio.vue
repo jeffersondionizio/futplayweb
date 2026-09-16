@@ -48,8 +48,8 @@ const passos = ['um', 'dois', 'tres'] as const
                      font-extrabold text-[var(--color-marca)]"
             >{{ i + 1 }}</span>
             <div>
-              <p class="font-bold">{{ t(`home.passos.${passo}.titulo`) }}</p>
-              <p class="text-sm text-[var(--color-tinta-suave)]">{{ t(`home.passos.${passo}.texto`) }}</p>
+              <p class="font-bold">{{ i === 0 ? t('home.primeiroPasso') : t(`home.passos.${passo}.titulo`) }}</p>
+              <p class="text-sm text-[var(--color-tinta-suave)]">{{ i === 0 ? t('home.primeiroPassoTexto') : t(`home.passos.${passo}.texto`) }}</p>
             </div>
           </li>
         </ol>
