@@ -2,8 +2,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api, urlImagem, type Grupo, type Jogador } from '../servicos/api'
+import { api, type Grupo, type Jogador } from '../servicos/api'
 import Estado from '../componentes/Estado.vue'
+import Foto from '../componentes/Foto.vue'
 
 const { t, locale } = useI18n()
 const rota = useRoute()
@@ -80,8 +81,7 @@ onMounted(carregar)
       </RouterLink>
 
       <header class="painel mt-4 flex flex-wrap items-center gap-4 p-6">
-        <img :src="urlImagem('grupo', grupo.id)" :alt="grupo.nome" loading="lazy"
-             class="h-16 w-16 rounded-xl border border-[var(--color-linha)] object-cover" />
+        <Foto pasta="grupo" :id="grupo.id" :nome="grupo.nome" classe="h-16 w-16" />
         <div class="min-w-0 flex-1">
           <h1 class="text-2xl font-extrabold">{{ grupo.nome }}</h1>
           <p class="text-sm text-[var(--color-tinta-fraca)]">{{ grupo.cidade || t('comum.naoInformado') }}</p>
@@ -143,8 +143,7 @@ onMounted(carregar)
         <ul class="flex flex-wrap gap-3">
           <li v-for="m in membros" :key="m.id"
               class="flex items-center gap-2 rounded-full border border-[var(--color-linha)] py-1 pl-1 pr-3">
-            <img :src="urlImagem('perfil', m.id)" :alt="m.nome" loading="lazy"
-                 class="h-8 w-8 rounded-full object-cover" />
+            <Foto pasta="perfil" :id="m.id" :nome="m.nome" classe="h-8 w-8" redonda />
             <span class="text-sm font-semibold">{{ m.nome }}</span>
           </li>
         </ul>

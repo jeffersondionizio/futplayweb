@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api, urlImagem, type Campeonato } from '../servicos/api'
+import { api, type Campeonato } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
+import Foto from '../componentes/Foto.vue'
 
 const { t } = useI18n()
 const sessao = usarSessao()
@@ -49,8 +50,7 @@ onMounted(carregar)
         <li v-for="c in lista" :key="c.id" class="painel overflow-hidden">
           <RouterLink :to="{ name: 'campeonato', params: { id: c.id } }" class="block p-5">
             <div class="flex items-start gap-3">
-              <img :src="urlImagem('competicao', c.id)" :alt="c.nome" loading="lazy"
-                   class="h-12 w-12 shrink-0 rounded-lg border border-[var(--color-linha)] object-cover" />
+              <Foto pasta="competicao" :id="c.id" :nome="c.nome" classe="h-12 w-12" />
               <div class="min-w-0 flex-1">
                 <h2 class="truncate font-bold">{{ c.nome }}</h2>
                 <p class="truncate text-sm text-[var(--color-tinta-fraca)]">{{ c.cidade || t('comum.naoInformado') }}</p>

@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usarSessao } from '../estado/sessao'
-import { urlImagem } from '../servicos/api'
 import SeletorIdioma from './SeletorIdioma.vue'
+import Foto from './Foto.vue'
 
 const { t } = useI18n()
 const sessao = usarSessao()
@@ -48,13 +48,7 @@ const links = [
           :to="{ name: 'conta' }"
           class="flex items-center gap-2 rounded-lg py-1 pl-1 pr-3 hover:bg-[var(--color-marca-claro)]"
         >
-          <img
-            v-if="sessao.jogador?.id"
-            :src="urlImagem('perfil', sessao.jogador.id)"
-            :alt="sessao.jogador?.nome ?? ''"
-            class="h-8 w-8 rounded-full border border-[var(--color-linha)] object-cover"
-            loading="lazy"
-          />
+          <Foto v-if="sessao.jogador?.id" pasta="perfil" :id="sessao.jogador.id" :nome="sessao.jogador.nome" classe="h-8 w-8" redonda />
           <span class="hidden text-sm font-semibold sm:inline">{{ sessao.jogador?.nome }}</span>
         </RouterLink>
 

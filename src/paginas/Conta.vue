@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usarSessao } from '../estado/sessao'
-import { urlImagem } from '../servicos/api'
+import Foto from '../componentes/Foto.vue'
 
 const { t } = useI18n()
 const sessao = usarSessao()
@@ -52,12 +52,7 @@ async function sair() {
 
     <div class="grid gap-6 lg:grid-cols-3">
       <div class="painel p-6 text-center">
-        <img
-          v-if="sessao.jogador"
-          :src="urlImagem('perfil', sessao.jogador.id)"
-          :alt="sessao.jogador.nome"
-          class="mx-auto h-24 w-24 rounded-full border-2 border-[var(--color-linha)] object-cover"
-        />
+        <Foto v-if="sessao.jogador" pasta="perfil" :id="sessao.jogador.id" :nome="sessao.jogador.nome" classe="mx-auto h-24 w-24" redonda />
         <h2 class="mt-4 text-xl font-extrabold">{{ sessao.jogador?.nome }}</h2>
         <p class="text-sm text-[var(--color-tinta-fraca)]">{{ sessao.jogador?.posicao || t('comum.naoInformado') }}</p>
 

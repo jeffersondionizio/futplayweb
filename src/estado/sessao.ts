@@ -21,8 +21,15 @@ export const usarSessao = defineStore('sessao', () => {
 
   const autenticado = computed(() => jogador.value !== null)
 
-  /** Perfil recém-criado vem com nome do Google e o resto em branco. */
-  const perfilIncompleto = (j: Jogador) => !j.posicao || !j.idade || !j.peso
+  /**
+   * Só quem acabou de ser criado passa pelo cadastro obrigatório.
+   *
+   * Antes isto exigia posição, idade e peso preenchidos, e prendia na tela de
+   * cadastro quem já joga há tempo mas nunca preencheu um desses campos no app
+   * — a conta existia, com nome e overall, e ainda assim nenhuma tela abria.
+   * Quem quiser completar depois faz em Minha conta.
+   */
+  const perfilIncompleto = (j: Jogador) => !j.nome?.trim()
 
   async function restaurar() {
     carregando.value = true

@@ -2,9 +2,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api, urlImagem, type Campeonato, type Participante, type Jogo, type Clube } from '../servicos/api'
+import { api, type Campeonato, type Participante, type Jogo, type Clube } from '../servicos/api'
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
+import Foto from '../componentes/Foto.vue'
 
 const { t, locale } = useI18n()
 const rota = useRoute()
@@ -80,8 +81,7 @@ onMounted(carregar)
       </RouterLink>
 
       <header class="painel mt-4 flex flex-wrap items-center gap-4 p-6">
-        <img :src="urlImagem('competicao', campeonato.id)" :alt="campeonato.nome" loading="lazy"
-             class="h-16 w-16 rounded-xl border border-[var(--color-linha)] object-cover" />
+        <Foto pasta="competicao" :id="campeonato.id" :nome="campeonato.nome" classe="h-16 w-16" />
         <div class="min-w-0 flex-1">
           <h1 class="text-2xl font-extrabold">{{ campeonato.nome }}</h1>
           <p class="text-sm text-[var(--color-tinta-fraca)]">

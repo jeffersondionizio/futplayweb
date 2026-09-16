@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api, urlImagem, type Grupo } from '../servicos/api'
+import { api, type Grupo } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
+import Foto from '../componentes/Foto.vue'
 
 const { t, locale } = useI18n()
 const sessao = usarSessao()
@@ -98,12 +99,7 @@ onMounted(carregar)
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <li v-for="g in lista" :key="g.id" class="painel flex flex-col overflow-hidden">
           <div class="flex items-start gap-3 p-5">
-            <img
-              :src="urlImagem('grupo', g.id)"
-              :alt="g.nome"
-              class="h-12 w-12 shrink-0 rounded-lg border border-[var(--color-linha)] object-cover"
-              loading="lazy"
-            />
+            <Foto pasta="grupo" :id="g.id" :nome="g.nome" classe="h-12 w-12" />
             <div class="min-w-0">
               <h2 class="truncate font-bold">{{ g.nome }}</h2>
               <p class="truncate text-sm text-[var(--color-tinta-fraca)]">
