@@ -201,6 +201,16 @@ export type Jogo = {
   local?: string
 }
 
+export type EventoJogo = {
+  id: string
+  jogo_id: string
+  jogador_id: string
+  jogador_nome: string
+  clube_id: string
+  tipo: string
+  minuto?: string
+}
+
 export type Mensagem = {
   mensagem_id: string
   autor_id: string
@@ -241,6 +251,7 @@ export const api = {
   campeonato: (id: string) => requisitar<Campeonato>(`/campeonatos/${id}`),
   participantes: (id: string) => requisitar<Participante[]>(`/campeonatos/${id}/participantes`),
   jogos: (id: string) => requisitar<Jogo[]>(`/campeonatos/${id}/jogos`),
+  eventosCampeonato: (id: string) => requisitar<EventoJogo[]>(`/campeonatos/${id}/eventos`),
   inscreverClube: (id: string, clubeId: string) =>
     requisitar<Participante>(`/campeonatos/${id}/participantes`, {
       metodo: 'POST',
