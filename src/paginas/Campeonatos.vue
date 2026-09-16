@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api, publico, type Campeonato } from '../servicos/api'
 import { usarSessao } from '../estado/sessao'
@@ -8,12 +8,38 @@ import ConviteEntrar from '../componentes/ConviteEntrar.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
 import Foto from '../componentes/Foto.vue'
 
-const { t } = useI18n()
+const { t, te, locale } = useI18n()
 const sessao = usarSessao()
 const aba = ref<'descobrir' | 'meus'>('descobrir')
 const lista = ref<Campeonato[]>([])
 const carregando = ref(false)
 const erro = ref<string | null>(null)
+
+/** Filtro local, por nome ou cidade, sobre o que já veio. */
+const termo = ref('')
+const visiveis = computed(() => {
+  const busca = termo.value.trim().toLowerCase()
+  if (!busca) return lista.value
+  return lista.value.filter((c) =>
+    [c.nome, c.cidade, c.formato, c.status].some((campo) => campo?.toLowerCase().includes(busca)))
+})
+
+/** `GRUPOS_E_MATA_MATA` não é texto de card; vira "Grupos e mata-mata". */
+const formato = (valor: string) => {
+  const chave = `status.${valor.toUpperCase()}`
+  if (te(chave)) return t(chave)
+  const limpo = valor.replaceAll('_', ' ').toLowerCase()
+  return limpo.charAt(0).toUpperCase() + limpo.slice(1)
+}
+
+const dia = (iso?: string) => {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(locale.value, { day: '2-digit', month: 'short' })
+}
+
+/** "12 set – 30 nov", ou só o que existir. */
+const periodo = (c: Campeonato) => [dia(c.data_inicio), dia(c.data_fim)].filter(Boolean).join(' – ')
 
 async function carregar() {
   carregando.value = true
@@ -55,22 +81,49 @@ onMounted(carregar)
 
     <ConviteEntrar v-if="!sessao.autenticado" formato="aviso" />
 
-    <Estado :carregando="carregando" :erro="erro" :vazio="!lista.length"
+    <div v-if="lista.length" class="barra-filtros">
+      <input v-model="termo" class="campo" type="search" :placeholder="t('comum.filtrarNaLista')" />
+      <span class="contagem-resultado">{{ t('comum.resultados', visiveis.length) }}</span>
+    </div>
+
+    <Estado :carregando="carregando" :erro="erro" :vazio="!visiveis.length"
             :texto-vazio="t('campeonatos.vazio')" @recarregar="carregar">
-      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li v-for="c in lista" :key="c.id" class="painel overflow-hidden">
-          <RouterLink :to="{ name: 'campeonato', params: { id: c.id } }" class="block p-5">
-            <div class="flex items-start gap-3">
-              <Foto pasta="competicao" :id="c.id" :nome="c.nome" classe="h-12 w-12" />
-              <div class="min-w-0 flex-1">
-                <h2 class="truncate font-bold">{{ c.nome }}</h2>
-                <p class="truncate text-sm text-[var(--color-tinta-fraca)]">{{ c.cidade || t('comum.naoInformado') }}</p>
+      <ul class="grade-cartoes">
+        <li v-for="c in visiveis" :key="c.id">
+          <!-- O card inteiro é o link: um campeonato só tem um destino. -->
+          <RouterLink :to="{ name: 'campeonato', params: { id: c.id } }" class="cartao cartao-link">
+            <div class="cartao-topo">
+              <Foto pasta="competicao" :id="c.id" :nome="c.nome" classe="h-9 w-9" />
+              <div class="cartao-identidade">
+                <h2 class="cartao-titulo">{{ c.nome }}</h2>
+                <p class="cartao-local">
+                  <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                  <span class="truncate">{{ c.cidade || t('comum.naoInformado') }}</span>
+                </p>
               </div>
             </div>
-            <div class="mt-4 flex items-center justify-between gap-2">
+
+            <div class="cartao-selos">
               <Etiqueta :status="c.status ?? ''" />
-              <span class="text-xs font-semibold text-[var(--color-tinta-fraca)]">{{ c.formato }}</span>
+              <span v-if="c.formato" class="selo selo-neutro">{{ formato(c.formato) }}</span>
             </div>
+
+            <p v-if="c.fase_atual" class="cartao-linha">
+              <svg class="icone-linha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M6 4h12v3a6 6 0 0 1-12 0V4Zm6 9v4m-3 3h6" />
+              </svg>
+              <span class="truncate">{{ t('campeonatos.fase') }}: {{ formato(c.fase_atual) }}</span>
+            </p>
+            <p v-if="periodo(c)" class="cartao-linha">
+              <svg class="icone-linha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />
+              </svg>
+              <span class="truncate">{{ periodo(c) }}</span>
+            </p>
+
+            <span class="cartao-chamada">{{ t('comum.ver') }} <span aria-hidden="true">→</span></span>
           </RouterLink>
         </li>
       </ul>

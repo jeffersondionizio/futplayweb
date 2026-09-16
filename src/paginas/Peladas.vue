@@ -126,10 +126,10 @@ onMounted(carregar)
       :texto-vazio="t('peladas.vazio')"
       @recarregar="carregar"
     >
-      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul class="grade-cartoes">
         <li v-for="g in visiveis" :key="g.id" class="cartao">
           <div class="cartao-topo">
-            <Foto pasta="grupo" :id="g.id" :nome="g.nome" classe="h-12 w-12" />
+            <Foto pasta="grupo" :id="g.id" :nome="g.nome" classe="h-9 w-9" />
             <div class="cartao-identidade">
               <h2 class="cartao-titulo">{{ g.nome }}</h2>
               <p class="cartao-local">
@@ -146,32 +146,36 @@ onMounted(carregar)
             <span v-if="g.tipo_pelada" class="selo selo-neutro">{{ g.tipo_pelada }}</span>
           </div>
 
-          <dl class="cartao-dados">
-            <div>
-              <dt>{{ t('peladas.quando') }}</dt>
-              <dd>{{ g.data_peladaproxima ? dataLegivel(g.data_peladaproxima) : (g.dia_semana || '-') }}</dd>
+          <!--
+            Quando, onde, quanto e quantos numa linha só.
+            Quatro pares rótulo/valor em grade davam ao card a altura de uma
+            ficha, e cada um deles cabe em duas palavras.
+          -->
+          <p class="cartao-linha">
+            <svg class="icone-linha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />
+            </svg>
+            <span>{{ g.data_peladaproxima ? dataLegivel(g.data_peladaproxima) : (g.dia_semana || '-') }}</span>
+          </p>
+          <p class="cartao-linha">
+            <svg class="icone-linha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" />
+            </svg>
+            <span class="truncate">{{ g.local || t('comum.naoInformado') }}</span>
+          </p>
+
+          <div class="cartao-medidores">
+            <span class="valor-pelada" :class="{ gratis: !g.valor || g.valor === '0' }">
+              {{ g.valor && g.valor !== '0' ? `R$ ${g.valor}` : t('peladas.gratis') }}
+            </span>
+            <span class="vagas-texto">
+              {{ g.inscritos ?? '0' }}<template v-if="ocupacao(g)">/{{ ocupacao(g)!.total }}</template>
+              {{ t('peladas.inscritos') }}
+            </span>
+            <div v-if="ocupacao(g)" class="barra-vagas" :class="{ cheia: ocupacao(g)!.porcento >= 100 }">
+              <i :style="{ width: `${ocupacao(g)!.porcento}%` }" />
             </div>
-            <div>
-              <dt>{{ t('peladas.onde') }}</dt>
-              <dd class="truncate">{{ g.local || t('comum.naoInformado') }}</dd>
-            </div>
-            <div>
-              <dt>{{ t('peladas.valor') }}</dt>
-              <dd :class="{ destaque: !g.valor || g.valor === '0' }">
-                {{ g.valor && g.valor !== '0' ? `R$ ${g.valor}` : t('peladas.gratis') }}
-              </dd>
-            </div>
-            <div>
-              <dt>{{ t('peladas.jogadores') }}</dt>
-              <dd>
-                {{ g.inscritos ?? '0' }}<template v-if="ocupacao(g)">/{{ ocupacao(g)!.total }}</template>
-                <span v-if="!ocupacao(g)"> {{ t('peladas.inscritos') }}</span>
-              </dd>
-              <div v-if="ocupacao(g)" class="barra-vagas" :class="{ cheia: ocupacao(g)!.porcento >= 100 }">
-                <i :style="{ width: `${ocupacao(g)!.porcento}%` }" />
-              </div>
-            </div>
-          </dl>
+          </div>
 
           <div class="cartao-rodape">
             <RouterLink :to="{ name: 'pelada', params: { id: g.id } }" class="botao-secundario">

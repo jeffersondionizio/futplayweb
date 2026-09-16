@@ -65,10 +65,10 @@ onMounted(carregar)
 
     <Estado :carregando="carregando" :erro="erro" :vazio="!visiveis.length"
             :texto-vazio="t('clubes.vazio')" @recarregar="carregar">
-      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul class="grade-cartoes">
         <li v-for="c in visiveis" :key="c.id" class="cartao">
           <div class="cartao-topo">
-            <Foto pasta="clube" :id="c.id" :nome="c.nome" classe="h-12 w-12" />
+            <Foto pasta="clube" :id="c.id" :nome="c.nome" classe="h-9 w-9" />
             <div class="cartao-identidade">
               <h2 class="cartao-titulo">{{ c.nome }}</h2>
               <p class="cartao-local">
@@ -85,20 +85,14 @@ onMounted(carregar)
             <span v-if="c.privacidade" class="selo selo-neutro">{{ c.privacidade }}</span>
           </div>
 
-          <dl class="cartao-dados">
-            <div>
-              <dt>{{ t('clubes.membros') }}</dt>
-              <dd class="destaque">{{ c.total_membros ?? '0' }}</dd>
-            </div>
-            <div>
-              <dt>{{ t('comum.cidade') }}</dt>
-              <dd class="truncate">{{ c.cidade || t('comum.naoInformado') }}</dd>
-            </div>
-            <div v-if="c.descricao" class="col-span-full">
-              <dt>{{ t('clubes.sobre') }}</dt>
-              <dd class="line-clamp-2 font-normal text-[var(--color-tinta-suave)]">{{ c.descricao }}</dd>
-            </div>
-          </dl>
+          <!-- A cidade já está no topo; aqui fica o que o topo não cabe. -->
+          <p class="cartao-linha">
+            <svg class="icone-linha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M16 19v-2a4 4 0 0 0-8 0v2" /><circle cx="12" cy="8" r="3.2" />
+            </svg>
+            <span><strong class="text-[var(--color-marca)]">{{ c.total_membros ?? '0' }}</strong> {{ t('clubes.membros') }}</span>
+          </p>
+          <p v-if="c.descricao" class="cartao-descricao">{{ c.descricao }}</p>
 
           <div class="cartao-rodape">
             <button v-if="sessao.autenticado && !c.meu_papel" type="button" class="botao-secundario"

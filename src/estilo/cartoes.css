@@ -31,12 +31,12 @@
 /* Faixa de identidade: verde da marca, com a foto do grupo ou o escudo em cima. */
 .cartao-topo {
   position: relative;
-  padding: 1.1rem 1.15rem .9rem;
+  padding: .7rem .85rem;
   background: linear-gradient(135deg, #0a6a3a 0%, var(--color-marca-vivo) 140%);
   color: white;
   display: flex;
   align-items: center;
-  gap: .85rem;
+  gap: .65rem;
 }
 
 /* Textura discreta, para a faixa não virar um bloco chapado. */
@@ -59,7 +59,7 @@
 
 .cartao-identidade { min-width: 0; flex: 1; }
 .cartao-titulo {
-  font-size: 1rem;
+  font-size: .92rem;
   font-weight: 800;
   letter-spacing: -.02em;
   line-height: 1.25;
@@ -68,14 +68,14 @@
 .cartao-local {
   display: flex;
   align-items: center;
-  gap: .3rem;
-  margin-top: .15rem;
-  font-size: .78rem;
+  gap: .28rem;
+  margin-top: .1rem;
+  font-size: .73rem;
   color: rgb(255 255 255 / .82);
 }
 
 /* Etiquetas curtas do topo: tipo de pelada, formato, papel no clube. */
-.cartao-selos { display: flex; flex-wrap: wrap; gap: .35rem; padding: .75rem 1.15rem 0; }
+.cartao-selos { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; padding: .55rem .85rem 0; }
 .selo {
   display: inline-flex;
   align-items: center;
@@ -95,8 +95,8 @@
 .cartao-dados {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .9rem 1rem;
-  padding: 1rem 1.15rem;
+  gap: .6rem .85rem;
+  padding: .7rem .85rem;
 }
 .cartao-dados dt {
   font-size: .64rem;
@@ -106,8 +106,8 @@
   color: var(--color-tinta-fraca);
 }
 .cartao-dados dd {
-  margin-top: .15rem;
-  font-size: .85rem;
+  margin-top: .1rem;
+  font-size: .8rem;
   font-weight: 650;
   color: var(--color-tinta);
   overflow-wrap: anywhere;
@@ -117,11 +117,11 @@
 .cartao-rodape {
   margin-top: auto;
   display: flex;
-  gap: .5rem;
-  padding: .85rem 1.15rem 1.05rem;
+  gap: .45rem;
+  padding: .6rem .85rem .7rem;
   border-top: 1px solid var(--color-linha);
 }
-.cartao-rodape > * { flex: 1; }
+.cartao-rodape > * { flex: 1; min-height: 36px; padding-block: .4rem; font-size: .78rem; }
 
 /* Barra de vagas: o número sozinho não diz se ainda dá tempo de entrar. */
 .barra-vagas {
@@ -140,41 +140,6 @@
 }
 .barra-vagas.cheia > i { background: var(--color-estado-erro); }
 
-/* Confronto do amistoso: escudo, x, escudo. */
-.cartao-confronto {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: .6rem;
-  padding: 1.15rem;
-}
-.cartao-lado {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: .5rem;
-  min-width: 0;
-  text-align: center;
-  font-size: .8rem;
-  font-weight: 750;
-  overflow-wrap: anywhere;
-}
-.cartao-lado.indefinido { color: var(--color-tinta-fraca); font-weight: 600; font-style: italic; }
-.cartao-placar {
-  font-size: 1.35rem;
-  font-weight: 850;
-  letter-spacing: -.03em;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: var(--color-tinta);
-}
-.cartao-versus {
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--color-tinta-fraca);
-}
 
 /* Filtro das listas: campo de busca + contagem do que sobrou. */
 .barra-filtros {
@@ -206,11 +171,24 @@
  * cor à página e é onde as abas passam a morar, em vez de flutuarem soltas ao
  * lado do título.
  */
+/*
+ * Altura fixa nas quatro telas.
+ *
+ * Peladas tem abas, clubes nao tem, campeonatos e amistosos tem abas e botao:
+ * deixadas ao conteudo, as faixas ficavam com quatro alturas diferentes e a
+ * troca de aba mexia a pagina inteira. O `min-height` reserva o espaco das
+ * abas mesmo onde elas nao existem, e `justify-content` mantem o titulo no
+ * topo e as abas embaixo.
+ */
 .capa-lista {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 170px;
   overflow: hidden;
-  margin-bottom: 1.75rem;
-  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
   border-radius: 1rem;
   background: linear-gradient(120deg, #06422a 0%, #0a7541 58%, var(--color-marca-vivo) 130%);
   color: white;
@@ -235,6 +213,7 @@
 
 /* Abas da faixa: pílulas claras sobre o verde, a ativa em branco sólido. */
 .abas-lista { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.25rem; }
+.capa-lista > .abas-lista { margin-top: auto; padding-top: 1.25rem; }
 .aba-lista {
   border-radius: 999px;
   padding: .45rem 1rem;
@@ -247,3 +226,119 @@
 .aba-lista:hover { background: rgb(255 255 255 / .24); color: white; }
 .aba-lista[aria-selected="true"] { background: white; color: #0a5c33; }
 .capa-lista :focus-visible { outline-color: var(--color-destaque); }
+
+/**
+ * Confronto do amistoso.
+ *
+ * O card segue a anatomia dos outros - topo verde, selos, linhas de info,
+ * rodape - e o que e so dele e este bloco: uma linha por clube, com o gol
+ * alinhado a direita como numa sumula.
+ */
+.amistoso-confronto { padding: .6rem .85rem 0; display: flex; flex-direction: column; gap: .35rem; }
+.amistoso-lado { display: flex; align-items: center; gap: .55rem; min-width: 0; }
+.amistoso-lado.indefinido { color: var(--color-tinta-fraca); }
+.amistoso-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: .85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.amistoso-lado.indefinido .amistoso-nome { font-weight: 500; font-style: italic; }
+.amistoso-gols {
+  font-size: .95rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.1rem;
+  text-align: right;
+}
+.amistoso-vago {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: .5rem;
+  border: 1px dashed var(--color-linha);
+  font-size: .8rem;
+  color: var(--color-tinta-fraca);
+}
+
+
+
+/* Resultado: quem venceu ganha peso, quem perdeu recua. Empate fica igual. */
+.amistoso-lado.venceu .amistoso-nome, .amistoso-lado.venceu .amistoso-gols { color: #0d5c32; font-weight: 850; }
+.amistoso-lado.perdeu { color: var(--color-tinta-fraca); }
+.amistoso-lado.perdeu .amistoso-nome { font-weight: 600; }
+
+/**
+ * Grade das listas.
+ *
+ * Uma só para pelada, clube e amistoso: a largura da coluna é a mesma nas três
+ * telas, e as linhas têm altura igual (`1fr`), então dois cards lado a lado
+ * terminam juntos mesmo quando um tem uma etiqueta a mais que o outro. Sem
+ * isto, cada página escolhia seu número de colunas e os cards mudavam de
+ * tamanho ao trocar de aba.
+ */
+.grade-cartoes {
+  display: grid;
+  gap: .75rem;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+
+/* Linha de informação com ícone: quando, onde. */
+.cartao-linha {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: 0 .85rem;
+  min-width: 0;
+  font-size: .78rem;
+  color: var(--color-tinta-suave);
+}
+.cartao-linha:first-of-type { padding-top: .6rem; }
+.icone-linha { width: .9rem; height: .9rem; flex-shrink: 0; color: var(--color-tinta-fraca); }
+
+/* Valor e vagas: a última linha antes da ação. */
+.cartao-medidores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .25rem .6rem;
+  padding: .6rem .85rem 0;
+}
+.valor-pelada { font-size: .9rem; font-weight: 850; letter-spacing: -.02em; color: var(--color-tinta); }
+.valor-pelada.gratis { color: var(--color-marca); }
+.vagas-texto { font-size: .72rem; color: var(--color-tinta-fraca); font-variant-numeric: tabular-nums; }
+.cartao-medidores .barra-vagas { width: 100%; margin-top: .3rem; }
+
+/* Descrição do clube: no máximo duas linhas, para não esticar o card. */
+.cartao-descricao {
+  padding: .4rem .85rem 0;
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--color-tinta-suave);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+
+/* Card que é inteiro um link: o hover do .cartao já responde por ele. */
+.cartao-link { height: 100%; color: inherit; }
+.cartao-chamada {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .6rem .85rem .7rem;
+  font-size: .78rem;
+  font-weight: 750;
+  color: var(--color-marca);
+}
