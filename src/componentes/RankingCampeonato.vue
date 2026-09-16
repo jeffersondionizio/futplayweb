@@ -15,7 +15,7 @@ const { t } = useI18n({ useScope: 'local', messages: mensagensCampeonato })
     <ol v-else class="ranking-lista">
       <li v-for="p in lista" :key="`${p.id}:${p.clube}:${p.nome}`">
         <span class="ranking-posicao">{{ p.posicao }}</span>
-        <Foto pasta="perfil" :id="p.id" :nome="p.nome" classe="h-11 w-11" redonda />
+        <Foto pasta="perfil" :id="p.id" :nome="p.nome" classe="h-8 w-8" redonda />
         <div class="ranking-nome"><strong>{{ p.nome }}</strong><span>{{ nomeDoClube(p.clube) }}</span></div>
         <strong class="ranking-valor">{{ p.total }}<span>{{ t('total') }}</span></strong>
       </li>

@@ -18,9 +18,9 @@ const quando = (data?: string) => {
   <article class="jogo-card">
     <div class="jogo-meta"><span>{{ quando(jogo.data_hora) }}</span><Etiqueta :status="jogo.status" /></div>
     <div class="confronto">
-      <div class="time-jogo"><Foto pasta="clube" :id="jogo.clube_a_id" :nome="nomeDoClube(jogo.clube_a_id)" classe="h-9 w-9" /><span>{{ nomeDoClube(jogo.clube_a_id) || t('aDefinir') }}</span></div>
+      <div class="time-jogo"><Foto pasta="clube" :id="jogo.clube_a_id" :nome="nomeDoClube(jogo.clube_a_id)" classe="h-7 w-7" /><span>{{ nomeDoClube(jogo.clube_a_id) || t('aDefinir') }}</span></div>
       <strong class="placar">{{ finalizado(jogo) ? `${jogo.placar_a} – ${jogo.placar_b}` : '×' }}</strong>
-      <div class="time-jogo"><Foto pasta="clube" :id="jogo.clube_b_id" :nome="nomeDoClube(jogo.clube_b_id)" classe="h-9 w-9" /><span>{{ nomeDoClube(jogo.clube_b_id) || t('aDefinir') }}</span></div>
+      <div class="time-jogo"><Foto pasta="clube" :id="jogo.clube_b_id" :nome="nomeDoClube(jogo.clube_b_id)" classe="h-7 w-7" /><span>{{ nomeDoClube(jogo.clube_b_id) || t('aDefinir') }}</span></div>
     </div>
     <p class="jogo-local">{{ jogo.local || t('aDefinir') }}</p>
   </article>

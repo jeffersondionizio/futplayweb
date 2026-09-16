@@ -194,7 +194,7 @@ watch(() => rota.params.id, () => { rodada.value = ''; clubeFiltro.value = ''; a
                       <td class="coluna-posicao">
                         <span class="posicao-tabela">{{ i + 1 }}</span>
                       </td>
-                      <th scope="row" class="coluna-clube"><div class="nome-tabela"><Foto pasta="clube" :id="p.clube_id" :nome="nomeDoClube(p.clube_id)" classe="h-7 w-7" /><span>{{ nomeDoClube(p.clube_id) }}</span></div></th>
+                      <th scope="row" class="coluna-clube"><div class="nome-tabela"><Foto pasta="clube" :id="p.clube_id" :nome="nomeDoClube(p.clube_id)" classe="h-5 w-5" /><span>{{ nomeDoClube(p.clube_id) }}</span></div></th>
                       <td class="pontos-tabela">{{ p.pontos }}</td><td>{{ p.jogos }}</td><td>{{ p.vitorias }}</td><td>{{ p.empates }}</td><td>{{ p.derrotas }}</td><td>{{ p.gols_pro }}</td><td>{{ p.gols_contra }}</td><td class="saldo-tabela" :class="{ negativo: Number(p.saldo_gols) < 0 }">{{ p.saldo_gols }}</td><td>{{ p.aproveitamento }}</td>
                       <td><div class="forma-time"><span v-for="(resultado, index) in forma[p.clube_id]" :key="index" :class="`resultado-${resultado}`" :title="t(resultado)" :aria-label="t(resultado)">{{ resultado }}</span><span v-if="!forma[p.clube_id]?.length">—</span></div></td>
                     </tr></tbody>
