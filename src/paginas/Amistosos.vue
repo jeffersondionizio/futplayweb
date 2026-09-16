@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { api, type Amistoso, type Clube } from '../servicos/api'
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
+import { nomeDoClube, registrar } from '../servicos/clubes'
 
 const { t, locale } = useI18n()
 const ESCOPOS = ['meus', 'recebidos', 'abertos', 'historico'] as const
@@ -11,14 +12,13 @@ type Escopo = (typeof ESCOPOS)[number]
 
 const aba = ref<Escopo>('meus')
 const lista = ref<Amistoso[]>([])
-const clubes = ref<Record<string, Clube>>({})
 const meusClubes = ref<Clube[]>([])
 const carregando = ref(false)
 const erro = ref<string | null>(null)
 const enviados = ref<Record<string, boolean>>({})
 
 const nomeClube = (id: string) =>
-  clubes.value[id]?.nome ?? (id ? '—' : t('amistosos.aguardandoAdversario'))
+  id ? nomeDoClube(id) : t('amistosos.aguardandoAdversario')
 
 async function carregar() {
   carregando.value = true
@@ -27,7 +27,7 @@ async function carregar() {
     // Os clubes vêm primeiro: a lista mostra nomes e a API devolve só ids.
     if (!meusClubes.value.length) {
       meusClubes.value = await api.meusClubes()
-      for (const c of meusClubes.value) clubes.value[c.id] = c
+      registrar(meusClubes.value)
     }
     lista.value = await api.amistosos(aba.value)
   } catch (e) {

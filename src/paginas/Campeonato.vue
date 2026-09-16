@@ -6,6 +6,7 @@ import { api, type Campeonato, type Participante, type Jogo, type Clube } from '
 import Estado from '../componentes/Estado.vue'
 import Etiqueta from '../componentes/Etiqueta.vue'
 import Foto from '../componentes/Foto.vue'
+import { nomeDoClube, registrar } from '../servicos/clubes'
 
 const { t, locale } = useI18n()
 const rota = useRoute()
@@ -14,12 +15,11 @@ const id = String(rota.params.id)
 const campeonato = ref<Campeonato | null>(null)
 const participantes = ref<Participante[]>([])
 const jogos = ref<Jogo[]>([])
-const clubes = ref<Record<string, Clube>>({})
 const carregando = ref(true)
 const erro = ref<string | null>(null)
 const aba = ref<'classificacao' | 'jogos' | 'regulamento'>('classificacao')
 
-const nomeClube = (cid: string) => clubes.value[cid]?.nome ?? cid ?? '—'
+const nomeClube = (cid: string) => nomeDoClube(cid)
 
 /** Ordenação clássica: pontos, saldo, gols pró. */
 const classificacao = computed(() =>
@@ -54,7 +54,7 @@ async function carregar() {
     campeonato.value = c
     participantes.value = p
     jogos.value = g
-    for (const cl of meus) clubes.value[cl.id] = cl
+    registrar(meus)
   } catch (e) {
     erro.value = (e as Error).message
   } finally {
