@@ -1,0 +1,92 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { usarSessao } from '../estado/sessao'
+import { urlImagem } from '../servicos/api'
+import SeletorIdioma from './SeletorIdioma.vue'
+
+const { t } = useI18n()
+const sessao = usarSessao()
+const menuAberto = ref(false)
+
+const links = [
+  { nome: 'peladas', rotulo: 'nav.peladas' },
+  { nome: 'campeonatos', rotulo: 'nav.campeonatos' },
+  { nome: 'amistosos', rotulo: 'nav.amistosos' },
+  { nome: 'clubes', rotulo: 'nav.clubes' },
+]
+</script>
+
+<template>
+  <header class="sticky top-0 z-40 border-b border-[var(--color-linha)] bg-white/95 backdrop-blur">
+    <div class="secao flex h-16 items-center justify-between gap-4">
+      <RouterLink :to="{ name: 'inicio' }" class="flex items-center gap-2 font-extrabold text-lg">
+        <span
+          class="grid h-9 w-9 place-items-center rounded-lg bg-[var(--color-marca-escuro)] text-white"
+          style="box-shadow: inset 0 -3px 0 var(--color-destaque)"
+          aria-hidden="true"
+        >F</span>
+        <span>{{ t('marca') }}</span>
+      </RouterLink>
+
+      <nav class="hidden items-center gap-1 md:flex" :aria-label="t('marca')">
+        <RouterLink
+          v-for="l in links"
+          :key="l.nome"
+          :to="{ name: l.nome }"
+          class="rounded-lg px-3 py-2 text-sm font-semibold text-[var(--color-tinta-suave)]
+                 hover:bg-[var(--color-marca-claro)] hover:text-[var(--color-marca)]"
+          active-class="bg-[var(--color-marca-claro)] text-[var(--color-marca)]"
+        >{{ t(l.rotulo) }}</RouterLink>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <SeletorIdioma />
+
+        <RouterLink
+          v-if="sessao.autenticado"
+          :to="{ name: 'conta' }"
+          class="flex items-center gap-2 rounded-lg py-1 pl-1 pr-3 hover:bg-[var(--color-marca-claro)]"
+        >
+          <img
+            v-if="sessao.jogador?.id"
+            :src="urlImagem('perfil', sessao.jogador.id)"
+            :alt="sessao.jogador?.nome ?? ''"
+            class="h-8 w-8 rounded-full border border-[var(--color-linha)] object-cover"
+            loading="lazy"
+          />
+          <span class="hidden text-sm font-semibold sm:inline">{{ sessao.jogador?.nome }}</span>
+        </RouterLink>
+
+        <RouterLink v-else :to="{ name: 'entrar' }" class="botao-primario">
+          {{ t('nav.entrar') }}
+        </RouterLink>
+
+        <button
+          type="button"
+          class="rounded-lg p-2 md:hidden"
+          :aria-label="t('nav.inicio')"
+          :aria-expanded="menuAberto"
+          @click="menuAberto = !menuAberto"
+        >
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <nav v-if="menuAberto" class="border-t border-[var(--color-linha)] bg-white md:hidden">
+      <div class="secao flex flex-col py-2">
+        <RouterLink
+          v-for="l in links"
+          :key="l.nome"
+          :to="{ name: l.nome }"
+          class="rounded-lg px-3 py-2.5 text-sm font-semibold text-[var(--color-tinta-suave)]"
+          active-class="bg-[var(--color-marca-claro)] text-[var(--color-marca)]"
+          @click="menuAberto = false"
+        >{{ t(l.rotulo) }}</RouterLink>
+      </div>
+    </nav>
+  </header>
+</template>

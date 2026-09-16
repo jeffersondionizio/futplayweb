@@ -1,0 +1,404 @@
+/**
+ * Idiomas do site: português do Brasil (padrão) e inglês.
+ *
+ * A escolha fica no localStorage. Quem nunca escolheu cai no pt-BR mesmo que o
+ * navegador esteja em outro idioma — o público do FutPlay é brasileiro, e
+ * adivinhar pelo navegador erraria para quem usa o sistema em inglês aqui.
+ */
+
+import { createI18n } from 'vue-i18n'
+
+export const IDIOMAS = [
+  { codigo: 'pt-BR', rotulo: 'Português', bandeira: '🇧🇷' },
+  { codigo: 'en', rotulo: 'English', bandeira: '🇺🇸' },
+] as const
+
+export type CodigoIdioma = (typeof IDIOMAS)[number]['codigo']
+
+const CHAVE = 'futplay:idioma'
+
+export function idiomaSalvo(): CodigoIdioma {
+  try {
+    const v = localStorage.getItem(CHAVE)
+    if (v && IDIOMAS.some((i) => i.codigo === v)) return v as CodigoIdioma
+  } catch {
+    // Navegação privada pode recusar o localStorage; o padrão resolve.
+  }
+  return 'pt-BR'
+}
+
+export function salvarIdioma(codigo: CodigoIdioma) {
+  try {
+    localStorage.setItem(CHAVE, codigo)
+  } catch {
+    /* segue com o idioma em memória */
+  }
+  document.documentElement.lang = codigo
+}
+
+const ptBR = {
+  marca: 'FutPlay',
+  nav: {
+    inicio: 'Início',
+    peladas: 'Peladas',
+    campeonatos: 'Campeonatos',
+    amistosos: 'Amistosos',
+    clubes: 'Clubes',
+    entrar: 'Entrar',
+    sair: 'Sair',
+    minhaConta: 'Minha conta',
+  },
+  home: {
+    titulo: 'O jeito mais fácil de organizar sua pelada',
+    subtitulo:
+      'Monte times equilibrados, acompanhe rankings, organize campeonatos e marque amistosos. Tudo em um lugar só.',
+    entrar: 'Entrar com Google',
+    verPeladas: 'Ver peladas próximas',
+    baixarApp: 'Baixar o aplicativo',
+    recursos: {
+      titulo: 'Tudo que sua pelada precisa',
+      sorteio: {
+        titulo: 'Times equilibrados',
+        texto: 'Sorteio por overall, com coletes e reservas — sem discussão antes do jogo.',
+      },
+      ranking: {
+        titulo: 'Rankings e prêmios',
+        texto: 'Ranking da pelada, da temporada e vitalício. Pódio com artilheiro, maestro e muralha.',
+      },
+      campeonato: {
+        titulo: 'Campeonatos completos',
+        texto: 'Grupos, mata-mata, tabela e súmula. A chave inteira gerada de uma vez.',
+      },
+      amistoso: {
+        titulo: 'Amistosos entre clubes',
+        texto: 'Desafie um clube direto ou publique um desafio aberto e espere quem topar.',
+      },
+    },
+    comoFunciona: 'Como funciona',
+    passos: {
+      um: { titulo: 'Entre com o Google', texto: 'Se você já usa o app, seu perfil aparece aqui na hora.' },
+      dois: { titulo: 'Escolha sua pelada', texto: 'Procure por cidade, peça para entrar no grupo e pronto.' },
+      tres: { titulo: 'Jogue e acompanhe', texto: 'Scouts, ranking e prêmios atualizados a cada rodada.' },
+    },
+    mesmaConta: 'Mesma conta do aplicativo',
+    mesmaContaTexto:
+      'O site e o app compartilham a mesma conta. Entre com o Google e seus grupos, clubes e campeonatos já estarão aqui.',
+  },
+  entrar: {
+    titulo: 'Entrar no FutPlay',
+    texto: 'Use sua conta Google. É a mesma do aplicativo.',
+    botao: 'Continuar com Google',
+    erro: 'Não foi possível entrar. Tente novamente.',
+  },
+  cadastro: {
+    titulo: 'Complete seu cadastro',
+    texto: 'Só precisamos de alguns dados para montar seu perfil de jogador.',
+    nome: 'Nome',
+    posicao: 'Posição',
+    idade: 'Idade',
+    peso: 'Peso (kg)',
+    peDominante: 'Pé dominante',
+    foto: 'Foto',
+    trocarFoto: 'Escolher foto',
+    salvar: 'Salvar e continuar',
+    salvando: 'Salvando…',
+  },
+  peladas: {
+    titulo: 'Peladas',
+    proximas: 'Peladas próximas',
+    minhas: 'Minhas peladas',
+    buscarCidade: 'Buscar por cidade',
+    vazio: 'Nenhuma pelada encontrada.',
+    pedirEntrada: 'Pedir para entrar',
+    pedidoEnviado: 'Pedido enviado',
+    jaSouMembro: 'Você já participa',
+    quando: 'Quando',
+    onde: 'Onde',
+    valor: 'Valor',
+    jogadores: 'Jogadores',
+    inscritos: 'inscritos',
+  },
+  campeonatos: {
+    titulo: 'Campeonatos',
+    meus: 'Meus campeonatos',
+    descobrir: 'Descobrir',
+    vazio: 'Nenhum campeonato por aqui ainda.',
+    classificacao: 'Classificação',
+    jogos: 'Jogos',
+    regulamento: 'Regulamento',
+    inscrever: 'Inscrever meu clube',
+    formato: 'Formato',
+    fase: 'Fase',
+    grupo: 'Grupo',
+    rodada: 'Rodada',
+  },
+  tabela: {
+    posicao: '#',
+    clube: 'Clube',
+    pontos: 'P',
+    jogos: 'J',
+    vitorias: 'V',
+    empates: 'E',
+    derrotas: 'D',
+    golsPro: 'GP',
+    golsContra: 'GC',
+    saldo: 'SG',
+  },
+  amistosos: {
+    titulo: 'Amistosos',
+    meus: 'Meus',
+    recebidos: 'Recebidos',
+    abertos: 'Abertos',
+    historico: 'Histórico',
+    vazio: 'Nenhum amistoso neste filtro.',
+    candidatar: 'Candidatar meu clube',
+    candidatado: 'Candidatura enviada',
+    versus: 'x',
+    aguardandoAdversario: 'Aguardando adversário',
+  },
+  clubes: {
+    titulo: 'Clubes',
+    meus: 'Meus clubes',
+    buscar: 'Buscar por cidade',
+    vazio: 'Nenhum clube encontrado.',
+    membros: 'atletas',
+    entrar: 'Pedir para entrar',
+  },
+  conta: {
+    titulo: 'Minha conta',
+    dados: 'Dados do jogador',
+    atributos: 'Atributos',
+    salvar: 'Salvar alterações',
+    salvo: 'Alterações salvas.',
+    sair: 'Sair da conta',
+  },
+  status: {
+    RASCUNHO: 'Rascunho',
+    INSCRICOES_ABERTAS: 'Inscrições abertas',
+    GERACAO_TABELA: 'Gerando tabela',
+    EM_ANDAMENTO: 'Em andamento',
+    ATIVO: 'Ativo',
+    FASE_GRUPOS: 'Fase de grupos',
+    MATA_MATA: 'Mata-mata',
+    OITAVAS: 'Oitavas',
+    QUARTAS: 'Quartas',
+    SEMIFINAL: 'Semifinal',
+    FINAL: 'Final',
+    CONCLUIDO: 'Concluído',
+    FINALIZADO: 'Finalizado',
+    CANCELADO: 'Cancelado',
+    PROPOSTO: 'Proposto',
+    EM_NEGOCIACAO: 'Em negociação',
+    ACEITO: 'Aceito',
+    PLACAR_PENDENTE: 'Placar pendente',
+    RECUSADO: 'Recusado',
+    AGENDADO: 'Agendado',
+    CONFIRMADO: 'Confirmado',
+    PENDENTE: 'Pendente',
+  },
+  comum: {
+    carregando: 'Carregando…',
+    erro: 'Algo deu errado.',
+    tentarNovamente: 'Tentar novamente',
+    voltar: 'Voltar',
+    cidade: 'Cidade',
+    buscar: 'Buscar',
+    limpar: 'Limpar',
+    ver: 'Ver',
+    naoInformado: 'Não informado',
+    idioma: 'Idioma',
+  },
+  rodape: {
+    direitos: 'Todos os direitos reservados.',
+    privacidade: 'Política de Privacidade',
+    termos: 'Termos de Uso',
+    app: 'Aplicativo Android',
+  },
+}
+
+const en: typeof ptBR = {
+  marca: 'FutPlay',
+  nav: {
+    inicio: 'Home',
+    peladas: 'Pickup games',
+    campeonatos: 'Tournaments',
+    amistosos: 'Friendlies',
+    clubes: 'Clubs',
+    entrar: 'Sign in',
+    sair: 'Sign out',
+    minhaConta: 'My account',
+  },
+  home: {
+    titulo: 'The easiest way to run your pickup game',
+    subtitulo:
+      'Build balanced teams, track rankings, run tournaments and schedule friendlies. All in one place.',
+    entrar: 'Sign in with Google',
+    verPeladas: 'Find games near you',
+    baixarApp: 'Get the app',
+    recursos: {
+      titulo: 'Everything your game needs',
+      sorteio: {
+        titulo: 'Balanced teams',
+        texto: 'Draw by overall rating, with bibs and substitutes — no arguing before kickoff.',
+      },
+      ranking: {
+        titulo: 'Rankings and awards',
+        texto: 'Match, season and all-time rankings. Podium with top scorer, playmaker and wall.',
+      },
+      campeonato: {
+        titulo: 'Full tournaments',
+        texto: 'Groups, knockout, table and match sheet. The whole bracket generated at once.',
+      },
+      amistoso: {
+        titulo: 'Club friendlies',
+        texto: 'Challenge a club directly or post an open challenge and wait for takers.',
+      },
+    },
+    comoFunciona: 'How it works',
+    passos: {
+      um: { titulo: 'Sign in with Google', texto: 'Already use the app? Your profile shows up right away.' },
+      dois: { titulo: 'Pick your game', texto: 'Search by city, ask to join the group, and you are in.' },
+      tres: { titulo: 'Play and follow along', texto: 'Stats, rankings and awards updated every round.' },
+    },
+    mesmaConta: 'Same account as the app',
+    mesmaContaTexto:
+      'The site and the app share one account. Sign in with Google and your groups, clubs and tournaments are already here.',
+  },
+  entrar: {
+    titulo: 'Sign in to FutPlay',
+    texto: 'Use your Google account — the same one as the app.',
+    botao: 'Continue with Google',
+    erro: 'Could not sign in. Please try again.',
+  },
+  cadastro: {
+    titulo: 'Complete your profile',
+    texto: 'We just need a few details to set up your player profile.',
+    nome: 'Name',
+    posicao: 'Position',
+    idade: 'Age',
+    peso: 'Weight (kg)',
+    peDominante: 'Dominant foot',
+    foto: 'Photo',
+    trocarFoto: 'Choose photo',
+    salvar: 'Save and continue',
+    salvando: 'Saving…',
+  },
+  peladas: {
+    titulo: 'Pickup games',
+    proximas: 'Games near you',
+    minhas: 'My games',
+    buscarCidade: 'Search by city',
+    vazio: 'No games found.',
+    pedirEntrada: 'Ask to join',
+    pedidoEnviado: 'Request sent',
+    jaSouMembro: 'You already play here',
+    quando: 'When',
+    onde: 'Where',
+    valor: 'Fee',
+    jogadores: 'Players',
+    inscritos: 'signed up',
+  },
+  campeonatos: {
+    titulo: 'Tournaments',
+    meus: 'My tournaments',
+    descobrir: 'Discover',
+    vazio: 'No tournaments here yet.',
+    classificacao: 'Standings',
+    jogos: 'Matches',
+    regulamento: 'Rules',
+    inscrever: 'Enter my club',
+    formato: 'Format',
+    fase: 'Stage',
+    grupo: 'Group',
+    rodada: 'Round',
+  },
+  tabela: {
+    posicao: '#',
+    clube: 'Club',
+    pontos: 'Pts',
+    jogos: 'P',
+    vitorias: 'W',
+    empates: 'D',
+    derrotas: 'L',
+    golsPro: 'GF',
+    golsContra: 'GA',
+    saldo: 'GD',
+  },
+  amistosos: {
+    titulo: 'Friendlies',
+    meus: 'Mine',
+    recebidos: 'Received',
+    abertos: 'Open',
+    historico: 'History',
+    vazio: 'No friendlies in this filter.',
+    candidatar: 'Offer my club',
+    candidatado: 'Offer sent',
+    versus: 'vs',
+    aguardandoAdversario: 'Waiting for an opponent',
+  },
+  clubes: {
+    titulo: 'Clubs',
+    meus: 'My clubs',
+    buscar: 'Search by city',
+    vazio: 'No clubs found.',
+    membros: 'players',
+    entrar: 'Ask to join',
+  },
+  conta: {
+    titulo: 'My account',
+    dados: 'Player details',
+    atributos: 'Attributes',
+    salvar: 'Save changes',
+    salvo: 'Changes saved.',
+    sair: 'Sign out',
+  },
+  status: {
+    RASCUNHO: 'Draft',
+    INSCRICOES_ABERTAS: 'Registration open',
+    GERACAO_TABELA: 'Building table',
+    EM_ANDAMENTO: 'In progress',
+    ATIVO: 'Active',
+    FASE_GRUPOS: 'Group stage',
+    MATA_MATA: 'Knockout',
+    OITAVAS: 'Round of 16',
+    QUARTAS: 'Quarter-finals',
+    SEMIFINAL: 'Semi-finals',
+    FINAL: 'Final',
+    CONCLUIDO: 'Completed',
+    FINALIZADO: 'Finished',
+    CANCELADO: 'Cancelled',
+    PROPOSTO: 'Proposed',
+    EM_NEGOCIACAO: 'Negotiating',
+    ACEITO: 'Accepted',
+    PLACAR_PENDENTE: 'Score pending',
+    RECUSADO: 'Declined',
+    AGENDADO: 'Scheduled',
+    CONFIRMADO: 'Confirmed',
+    PENDENTE: 'Pending',
+  },
+  comum: {
+    carregando: 'Loading…',
+    erro: 'Something went wrong.',
+    tentarNovamente: 'Try again',
+    voltar: 'Back',
+    cidade: 'City',
+    buscar: 'Search',
+    limpar: 'Clear',
+    ver: 'View',
+    naoInformado: 'Not provided',
+    idioma: 'Language',
+  },
+  rodape: {
+    direitos: 'All rights reserved.',
+    privacidade: 'Privacy Policy',
+    termos: 'Terms of Use',
+    app: 'Android app',
+  },
+}
+
+export const i18n = createI18n({
+  legacy: false,
+  locale: idiomaSalvo(),
+  fallbackLocale: 'pt-BR',
+  messages: { 'pt-BR': ptBR, en },
+})

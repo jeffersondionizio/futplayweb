@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+/**
+ * Tema do FutPlay web.
+ *
+ * As cores vêm do aplicativo Android (colors.xml) para que site e app pareçam o
+ * mesmo produto: o verde da marca é o mesmo `theme_secondary`, e os estados de
+ * campeonato e amistoso reaproveitam `comp_status_*` e `friendly_status_*`.
+ */
+
+@theme {
+  --color-marca: #00813d;
+  --color-marca-escuro: #06402a;
+  --color-marca-claro: #dff3e9;
+  --color-destaque: #7ac74f;
+
+  --color-tinta: #12233b;
+  --color-tinta-suave: #465c73;
+  --color-tinta-fraca: #57677a;
+
+  --color-papel: #f5f8fc;
+  --color-painel: #ffffff;
+  --color-linha: #dce7e1;
+  --color-zebra: #eff3f8;
+
+  --color-estado-ativo: #b34700;
+  --color-estado-encerrado: #b3124a;
+  --color-estado-agendado: #2f5d8c;
+  --color-estado-rascunho: #57677a;
+  --color-estado-gerando: #945100;
+  --color-estado-erro: #ba1a1a;
+  --color-estado-sucesso: #007a39;
+  --color-estado-negociando: #5e35b1;
+
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-papel);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* O foco visível é o que permite navegar o site inteiro pelo teclado. */
+  :focus-visible {
+    outline: 2px solid var(--color-marca);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .painel {
+    @apply rounded-xl border border-[var(--color-linha)] bg-[var(--color-painel)];
+    box-shadow: 0 10px 24px rgb(18 35 59 / 0.05);
+  }
+
+  /*
+   * No Tailwind v4 o @apply só aceita utilitários de verdade — encadear uma
+   * classe própria (`@apply botao`) falha com "Cannot apply unknown utility
+   * class". Por isso cada variante repete a base em vez de herdá-la.
+   */
+  .botao,
+  .botao-primario,
+  .botao-secundario {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5
+           text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .botao-primario {
+    @apply bg-[var(--color-marca)] text-white hover:bg-[var(--color-marca-escuro)];
+  }
+
+  .botao-secundario {
+    @apply border border-[var(--color-linha)] bg-white text-[var(--color-tinta)]
+           hover:border-[var(--color-marca)] hover:text-[var(--color-marca)];
+  }
+
+  .campo {
+    @apply w-full rounded-lg border border-[var(--color-linha)] bg-white px-3 py-2.5
+           text-sm text-[var(--color-tinta)] placeholder:text-[var(--color-tinta-fraca)]
+           focus:border-[var(--color-marca)] focus:outline-none;
+  }
+
+  .etiqueta {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide;
+  }
+
+  .secao {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+}
