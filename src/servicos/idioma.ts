@@ -49,6 +49,15 @@ const ptBR = {
     minhaConta: 'Minha conta',
   },
   home: {
+    appSelo: 'FutPlay para Android',
+    appTitulo: 'Sua próxima pelada começa no FutPlay.',
+    appTexto: 'Leve seu futebol no bolso. Encontre peladas, reúna seu time e acompanhe cada rodada do campeonato pelo aplicativo.',
+    instalar: 'Instalar o FutPlay',
+    loja: 'Disponível no Google Play',
+    navegador: 'Explorar pelo navegador',
+    appConvite: 'O próximo jogo já tem lugar no seu celular.',
+    appConviteTexto: 'Instale o FutPlay e use a mesma conta do site para continuar com seu perfil, seus grupos e seus campeonatos.',
+    chamadaMobile: 'Seu futebol, no bolso.',
     titulo: 'O jeito mais fácil de organizar sua pelada',
     subtitulo:
       'Monte times equilibrados, acompanhe rankings, organize campeonatos e marque amistosos. Tudo em um lugar só.',
@@ -263,6 +272,15 @@ const en: typeof ptBR = {
     minhaConta: 'My account',
   },
   home: {
+    appSelo: 'FutPlay for Android',
+    appTitulo: 'Your next game starts with FutPlay.',
+    appTexto: 'Take your football with you. Find pickup games, bring your team together and follow every tournament round in the app.',
+    instalar: 'Install FutPlay',
+    loja: 'Available on Google Play',
+    navegador: 'Explore in your browser',
+    appConvite: 'Your next game belongs on your phone.',
+    appConviteTexto: 'Install FutPlay and use the same account as the website to keep your profile, groups and tournaments with you.',
+    chamadaMobile: 'Your football, on the go.',
     titulo: 'The easiest way to run your pickup game',
     subtitulo:
       'Build balanced teams, track rankings, run tournaments and schedule friendlies. All in one place.',

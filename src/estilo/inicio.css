@@ -1,0 +1,46 @@
+.inicio-hero { background: #073e29; color: white; isolation: isolate; }
+.inicio-hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 85% 5%, #087e46 0, transparent 55%); }
+.inicio-hero::after { content: ''; position: absolute; height: 340px; width: 340px; border: 1px solid #ffffff0d; border-radius: 50%; left: -180px; bottom: -170px; pointer-events: none; }
+.inicio-apresentacao h1 { max-width: 620px; font-size: clamp(2.5rem, 4.5vw, 3.7rem); line-height: 1.06; letter-spacing: -.055em; text-wrap: balance; }
+.inicio-apresentacao > p:not(.inicio-selo) { color: #c7ded0; line-height: 1.75; font-size: 1.05rem; max-width: 470px; }
+.inicio-selo { color: #a9efbf; display: inline-flex; align-items: center; gap: .6rem; font-size: .68rem; letter-spacing: .12em; margin-bottom: 1.4rem; }
+.inicio-selo::before { content: ''; width: 7px; height: 7px; background: #49db83; border-radius: 50%; box-shadow: 0 0 0 4px #49db831a; }
+.inicio-acoes .botao-primario { background: white; color: #006a35; box-shadow: 0 4px 16px #002c2826; }
+.inicio-acoes .botao-primario:hover { background: #e7f7ed; }
+.inicio-acoes .botao-secundario { background: transparent; border-color: #ffffff45; color: white; }
+.inicio-acoes .botao-secundario:hover { background: #ffffff12; border-color: #ffffff80; }
+.instalar-app { display: inline-flex; align-items: center; gap: 1rem; padding: 1rem 1.4rem; min-height: 76px; border-radius: 14px; background: #c7f77d; color: #14391f; box-shadow: 0 8px 28px #001c2333; transition: background .18s, box-shadow .18s; }
+.instalar-app:hover { background: #dafaa8; box-shadow: 0 10px 34px #001c234d; }
+.instalar-app strong { display: block; font-size: 1.12rem; letter-spacing: -.025em; }.instalar-app small { display: block; font-size: .72rem; margin-top: .15rem; color: #35502d; }
+.seta-instalar { margin-left: 1rem; font-size: 1.5rem; }
+.explorar-web { display: inline-flex; gap: .7rem; align-items: center; margin-top: 1.25rem; padding: .5rem 0; font-size: .85rem; color: #d0e8d8; text-decoration: underline; text-underline-offset: 4px; }
+.explorar-web:hover { color: white; }.inicio-hero :focus-visible { outline-color: #c7f77d; }
+.instalar-mobile { display: none; }
+.inicio-guia { color: var(--color-tinta); box-shadow: 0 24px 70px #001e2540; padding: 1.75rem; border: 1px solid #ffffff70; border-radius: 20px; }
+.inicio-guia h2 { font-size: .7rem; letter-spacing: .1em; margin-top: 1.5rem; }
+.inicio-guia ol { margin-top: 1.25rem; }
+.inicio-guia li + li { border-top: 1px solid var(--color-linha); padding-top: 1.15rem; }
+.inicio-guia li > span { border-radius: 10px; background: #eff6f1; font-size: .85rem; }
+.inicio-guia li p:first-child { font-size: .92rem; }.inicio-guia li p:last-child { font-size: .82rem; margin-top: .2rem; }
+.campo-ilustrado { padding: 14px; height: 132px; background: #0a7541; border-radius: 12px; overflow: hidden; }
+.campo-marcacoes { position: relative; height: 100%; border: 1px solid #ffffff59; border-radius: 4px; background: repeating-linear-gradient(90deg, transparent 0 12.5%, #ffffff04 12.5% 25%); }
+.campo-marcacoes::before { content: ''; position: absolute; left: 50%; height: 100%; border-left: 1px solid #ffffff59; }
+.circulo-central { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 53px; height: 53px; border: 1px solid #ffffff59; border-radius: 50%; }
+.area-goleiro { position: absolute; top: 20%; height: 60%; width: 15%; border: 1px solid #ffffff59; }.area-esquerda { left: -1px; }.area-direita { right: -1px; }
+.campo-marcacoes i { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #f4fff7; box-shadow: 0 2px 5px #00332055; transform: translate(-50%, -50%); }
+.campo-marcacoes .jogador-1 { left: 12%; top: 50%; }.campo-marcacoes .jogador-2 { left: 33%; top: 25%; }.campo-marcacoes .jogador-3 { left: 33%; top: 75%; }
+.campo-marcacoes .jogador-4 { left: 88%; top: 50%; background: #c6f46b; }.campo-marcacoes .jogador-5 { left: 67%; top: 25%; background: #c6f46b; }.campo-marcacoes .jogador-6 { left: 67%; top: 75%; background: #c6f46b; }
+.inicio-recursos > h2 { text-align: left; font-size: clamp(1.6rem, 3vw, 2rem); letter-spacing: -.04em; }
+.recurso-card { border-radius: 16px; box-shadow: none; border-top: 3px solid #d5e9dc; }
+.recurso-card h3 { font-size: 1.05rem; }.recurso-card p { line-height: 1.7; font-size: .85rem; }
+.recurso-card:nth-child(2) > span { background: #fff5df; color: #886017; }.recurso-card:nth-child(3) > span { background: #e8f3f1; color: #256455; }
+.inicio-convite { background: #eaf5ee; border-color: #cee5d7; border-left: 4px solid var(--color-marca); box-shadow: none; border-radius: 16px; }
+.inicio-convite h2 { color: #16482d; }.inicio-convite p { color: #486552; }
+@media (min-width: 768px) { .inicio-hero > .secao { grid-template-columns: 1.15fr 1fr; gap: 4rem; padding-top: 4.5rem; padding-bottom: 4.5rem; } }
+@media (max-width: 640px) { .inicio-hero > .secao { padding-top: 3rem; padding-bottom: 2.5rem; gap: 2.25rem; }.inicio-guia { padding: 1.25rem; }.inicio-acoes { gap: .6rem; }.inicio-acoes > * { flex: 1 1 auto; }.inicio-convite { padding: 1.5rem; }.inicio-convite .botao-primario { width: 100%; } }
+@media (max-width: 640px) {
+  .pagina-inicio { padding-bottom: 84px; }
+  .instalar-app { justify-content: center; }
+  .instalar-mobile { position: fixed; z-index: 35; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .8rem 1rem calc(.8rem + env(safe-area-inset-bottom)); background: #fffffff5; backdrop-filter: blur(12px); border-top: 1px solid #dce8df; box-shadow: 0 -4px 20px #0a34200d; }
+  .instalar-mobile strong { display: block; color: #076b3b; font-size: .95rem; }.instalar-mobile div > span { display: block; font-size: .65rem; color: var(--color-tinta-fraca); }.instalar-mobile .botao-primario { font-size: .8rem; padding: .6rem .9rem; }
+}

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { usarSessao } from '../estado/sessao'
 import { URL_APP_ANDROID } from '../servicos/configuracao'
+import '../estilo/inicio.css'
 
 const { t } = useI18n()
-const sessao = usarSessao()
 
 const recursos = [
   { chave: 'sorteio', icone: 'M7 4h10M7 4a3 3 0 0 1-3 3m3-3v13m10-13a3 3 0 0 0 3 3m-3-3v13M4 7v4a8 8 0 0 0 16 0V7' },
@@ -17,33 +16,28 @@ const passos = ['um', 'dois', 'tres'] as const
 </script>
 
 <template>
+  <div class="pagina-inicio">
   <!-- herói -->
-  <section class="relative overflow-hidden border-b border-[var(--color-linha)] bg-white">
-    <div
-      class="pointer-events-none absolute inset-0 opacity-[0.07]"
-      style="background-image: radial-gradient(var(--color-marca) 1px, transparent 1px); background-size: 22px 22px"
-      aria-hidden="true"
-    />
+  <section class="inicio-hero relative overflow-hidden">
     <div class="secao relative grid gap-10 py-16 md:grid-cols-2 md:items-center md:py-24">
-      <div>
-        <p class="mb-3 text-sm font-bold uppercase tracking-wider text-[var(--color-marca)]">
-          {{ t('home.mesmaConta') }}
+      <div class="inicio-apresentacao">
+        <p class="inicio-selo mb-3 text-sm font-bold uppercase tracking-wider">
+          {{ t('home.appSelo') }}
         </p>
-        <h1 class="text-4xl font-extrabold leading-tight sm:text-5xl">{{ t('home.titulo') }}</h1>
-        <p class="mt-4 max-w-xl text-lg text-[var(--color-tinta-suave)]">{{ t('home.subtitulo') }}</p>
+        <h1 class="text-4xl font-extrabold leading-tight sm:text-5xl">{{ t('home.appTitulo') }}</h1>
+        <p class="mt-4 max-w-xl text-lg text-[var(--color-tinta-suave)]">{{ t('home.appTexto') }}</p>
 
-        <div class="mt-8 flex flex-wrap gap-3">
-          <RouterLink v-if="!sessao.autenticado" :to="{ name: 'entrar' }" class="botao-primario">
-            {{ t('home.entrar') }}
-          </RouterLink>
-          <RouterLink :to="{ name: 'peladas' }" class="botao-secundario">
-            {{ t('home.verPeladas') }}
-          </RouterLink>
-          <a :href="URL_APP_ANDROID" rel="noopener" class="botao-secundario">{{ t('home.baixarApp') }}</a>
+        <div class="inicio-acoes mt-8 flex flex-wrap gap-3">
+          <a :href="URL_APP_ANDROID" rel="noopener" class="instalar-app" data-testid="instalar-principal">
+            <svg width="27" height="30" viewBox="0 0 24 28" fill="none" aria-hidden="true"><path d="M3 2L23 14L3 26V2Z" fill="currentColor" /></svg>
+            <span><strong>{{ t('home.instalar') }}</strong><small>{{ t('home.loja') }}</small></span><span aria-hidden="true" class="seta-instalar">↗</span>
+          </a>
         </div>
+        <RouterLink :to="{ name: 'peladas' }" class="explorar-web">{{ t('home.navegador') }} <span aria-hidden="true">→</span></RouterLink>
       </div>
 
-      <div class="painel p-6">
+      <div class="inicio-guia painel p-6">
+        <div class="campo-ilustrado" aria-hidden="true"><div class="campo-marcacoes"><span class="circulo-central" /><span class="area-goleiro area-esquerda" /><span class="area-goleiro area-direita" /><i v-for="n in 6" :key="n" :class="`jogador-${n}`" /></div></div>
         <h2 class="text-sm font-bold uppercase tracking-wide text-[var(--color-tinta-fraca)]">
           {{ t('home.comoFunciona') }}
         </h2>
@@ -64,10 +58,10 @@ const passos = ['um', 'dois', 'tres'] as const
   </section>
 
   <!-- recursos -->
-  <section class="secao py-16">
+  <section class="inicio-recursos secao py-16">
     <h2 class="text-center text-3xl font-extrabold">{{ t('home.recursos.titulo') }}</h2>
     <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      <article v-for="r in recursos" :key="r.chave" class="painel p-6">
+      <article v-for="r in recursos" :key="r.chave" class="recurso-card painel p-6">
         <span
           class="grid h-11 w-11 place-items-center rounded-lg bg-[var(--color-marca-claro)] text-[var(--color-marca)]"
           aria-hidden="true"
@@ -84,15 +78,14 @@ const passos = ['um', 'dois', 'tres'] as const
 
   <!-- mesma conta -->
   <section class="secao pb-16">
-    <div class="painel flex flex-col items-start gap-6 p-8 md:flex-row md:items-center md:justify-between">
+    <div class="inicio-convite painel flex flex-col items-start gap-6 p-8 md:flex-row md:items-center md:justify-between">
       <div>
-        <h2 class="text-2xl font-extrabold">{{ t('home.mesmaConta') }}</h2>
-        <p class="mt-2 max-w-2xl text-[var(--color-tinta-suave)]">{{ t('home.mesmaContaTexto') }}</p>
+        <h2 class="text-2xl font-extrabold">{{ t('home.appConvite') }}</h2>
+        <p class="mt-2 max-w-2xl text-[var(--color-tinta-suave)]">{{ t('home.appConviteTexto') }}</p>
       </div>
-      <RouterLink
-        :to="{ name: sessao.autenticado ? 'peladas' : 'entrar' }"
-        class="botao-primario shrink-0"
-      >{{ sessao.autenticado ? t('home.verPeladas') : t('home.entrar') }}</RouterLink>
+      <a :href="URL_APP_ANDROID" rel="noopener" class="botao-primario shrink-0">{{ t('home.instalar') }} <span aria-hidden="true">↗</span></a>
     </div>
   </section>
+  <aside class="instalar-mobile" :aria-label="t('home.appSelo')"><div><strong>FutPlay</strong><span>{{ t('home.chamadaMobile') }}</span></div><a :href="URL_APP_ANDROID" class="botao-primario">{{ t('home.instalar') }} <span aria-hidden="true">↗</span></a></aside>
+  </div>
 </template>

@@ -34,9 +34,8 @@ const links = [
           v-for="l in links"
           :key="l.nome"
           :to="{ name: l.nome }"
-          class="link-cabecalho rounded-lg px-3 py-2 text-sm font-semibold text-[var(--color-tinta-suave)]
-                 hover:bg-[var(--color-marca-claro)] hover:text-[var(--color-marca)]"
-          active-class="bg-[var(--color-marca-claro)] text-[var(--color-marca)]"
+          class="link-cabecalho rounded-lg px-3 py-2 text-sm font-semibold"
+          active-class="link-ativo"
         >{{ t(l.rotulo) }}</RouterLink>
       </nav>
 
@@ -46,7 +45,7 @@ const links = [
         <RouterLink
           v-if="sessao.autenticado"
           :to="{ name: 'conta' }"
-          class="flex items-center gap-2 rounded-lg py-1 pl-1 pr-3 hover:bg-[var(--color-marca-claro)]"
+          class="conta-cabecalho flex items-center gap-2 rounded-lg py-1 pl-1 pr-3"
         >
           <Foto v-if="sessao.jogador?.id" pasta="perfil" :id="sessao.jogador.id" :nome="sessao.jogador.nome" classe="h-8 w-8" redonda />
           <span class="hidden text-sm font-semibold sm:inline">{{ sessao.jogador?.nome }}</span>

@@ -7,21 +7,21 @@
  * O verde #008040 da mesma paleta mantém contraste nos textos pequenos e botões.
  */
 
-@theme {
+@theme static {
   --color-marca: #008040;
   --color-marca-vivo: #06aa48;
   --color-marca-escuro: #077633;
   --color-marca-claro: #eaf7ef;
-  --color-destaque: #29ea77;
+  --color-destaque: #8ee6ae;
 
-  --color-tinta: #262626;
-  --color-tinta-suave: #424242;
-  --color-tinta-fraca: #666666;
+  --color-tinta: #202722;
+  --color-tinta-suave: #48524b;
+  --color-tinta-fraca: #657068;
 
-  --color-papel: #ffffff;
+  --color-papel: #f5f7f6;
   --color-painel: #ffffff;
-  --color-linha: #e0e0e0;
-  --color-zebra: #f5f5f5;
+  --color-linha: #e2e8e3;
+  --color-zebra: #f4f7f4;
 
   --color-estado-ativo: #008040;
   --color-estado-encerrado: #666666;
@@ -46,6 +46,15 @@
     font-family: var(--font-sans);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 { text-wrap: balance; letter-spacing: -.025em; }
+  button, select { cursor: pointer; }
+  ::selection { background: #c9efd7; color: #164329; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: 0s !important; }
   }
 
   /* O foco visível é o que permite navegar o site inteiro pelo teclado. */
@@ -59,7 +68,7 @@
 @layer components {
   .painel {
     @apply rounded-xl border border-[var(--color-linha)] bg-[var(--color-painel)];
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.025);
+    box-shadow: 0 1px 2px rgb(20 45 28 / .025), 0 6px 20px rgb(20 45 28 / .035);
   }
 
   /*
@@ -74,6 +83,10 @@
            text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
   }
 
+  .botao, .botao-primario, .botao-secundario { min-height: 44px; letter-spacing: -.01em; }
+  .botao-primario { box-shadow: 0 2px 3px rgb(0 80 40 / .12); }
+  .botao-secundario:hover { background: var(--color-marca-claro); }
+
   .botao-primario {
     @apply bg-[var(--color-marca)] text-white hover:bg-[var(--color-marca-escuro)];
   }
@@ -87,7 +100,10 @@
     @apply w-full rounded-lg border border-[var(--color-linha)] bg-white px-3 py-2.5
            text-sm text-[var(--color-tinta)] placeholder:text-[var(--color-tinta-fraca)]
            focus:border-[var(--color-marca)] focus:outline-none;
+    min-height: 44px;
+    transition: border-color .15s, box-shadow .15s;
   }
+  .campo:focus-visible { box-shadow: 0 0 0 3px rgb(6 170 72 / .12); }
 
   .etiqueta {
     @apply inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide;
@@ -98,20 +114,26 @@
   }
 
   .cabecalho-site {
-    background: var(--color-marca-vivo);
-    color: #101010;
-    border-color: var(--color-marca);
+    background: #076b3b;
+    color: white;
+    border-color: rgb(255 255 255 / .15);
+    box-shadow: inset 0 3px var(--color-marca-vivo), 0 3px 12px rgb(0 60 30 / .08);
   }
 
-  .cabecalho-site .marca-site { color: white; font-size: 1.5rem; }
-  .cabecalho-site .link-cabecalho { color: #101010; }
+  .cabecalho-site .marca-site { color: white; font-size: 1.5rem; letter-spacing: -.05em; }
+  .cabecalho-site .link-cabecalho { color: white; transition: background .15s; }
   .cabecalho-site .link-cabecalho:hover,
+  .cabecalho-site .link-cabecalho.link-ativo,
   .cabecalho-site .link-cabecalho[aria-current="page"] {
-    background: white;
-    color: var(--color-marca);
+    background: rgb(255 255 255 / .12);
+    color: white;
+    box-shadow: inset 0 -2px var(--color-destaque);
   }
-  .cabecalho-site .seletor-idioma > button { background: white; color: var(--color-tinta); }
-  .cabecalho-site :focus-visible { outline-color: #101010; }
-  .rodape-site { background: var(--color-marca); color: white; border-color: var(--color-marca); }
+  .cabecalho-site .seletor-idioma > button { background: rgb(255 255 255 / .1); color: white; min-height: 38px; }
+  .cabecalho-site .seletor-idioma [role="listbox"] { color: var(--color-tinta); }
+  .cabecalho-site .conta-cabecalho:hover { background: rgb(255 255 255 / .12); }
+  .cabecalho-site .botao-primario { background: white; color: var(--color-marca); }
+  .cabecalho-site :focus-visible { outline-color: var(--color-destaque); }
+  .rodape-site { background: #07552f; color: #e9f4ee; border-color: #096b3b; }
   .rodape-site a:hover { color: white; text-decoration: underline; }
 }
