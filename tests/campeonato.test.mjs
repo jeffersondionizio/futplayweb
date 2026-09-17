@@ -77,9 +77,11 @@ test('agenda ordena próximos compromissos e deixa horários desconhecidos no fi
   assert.deepEqual(agenda.map((item) => item.grupo.id), ['sexta', 'sabado', 'sem-hora'])
 })
 
-test('sorteio limpa lista colada, remove repetidos e distribui a sobra entre os times', () => {
+test('sorteio respeita o limite de jogadores e transforma qualquer sobra em time reserva', () => {
   assert.deepEqual(extrairNomes('1. Ana\n• Bruno\nANA\nPix: 123\n\nCarlos'), ['Ana', 'Bruno', 'Carlos'])
   const times = sortearTimes(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 5, () => 0.5)
-  assert.deepEqual(times.map((time) => time.jogadores.length), [6, 5])
+  assert.deepEqual(times.map((time) => time.jogadores.length), [5, 5, 1])
+  assert.deepEqual(times.map((time) => Boolean(time.reserva)), [false, false, true])
+  assert.equal(times.every((time) => time.jogadores.length <= 5), true)
   assert.equal(new Set(times.flatMap((time) => time.jogadores)).size, 11)
 })
