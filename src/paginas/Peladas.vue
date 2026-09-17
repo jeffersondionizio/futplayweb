@@ -7,8 +7,11 @@ import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
 import ConviteEntrar from '../componentes/ConviteEntrar.vue'
+import { pontoDe, distanciaKm, formatarDistancia, minhaPosicao, type Ponto } from '../servicos/geo'
+import { mensagensGestao } from '../servicos/idioma-gestao'
 
 const { t, locale } = useI18n()
+const { t: tg } = useI18n({ useScope: 'local', messages: mensagensGestao })
 const sessao = usarSessao()
 
 const aba = ref<'proximas' | 'minhas'>('proximas')
@@ -18,6 +21,51 @@ const carregando = ref(false)
 const erro = ref<string | null>(null)
 const pedidos = ref<Record<string, boolean>>({})
 const saindo = ref<Record<string, boolean>>({})
+
+/* ------------------------------ por perto ------------------------------- */
+
+const posicao = ref<Ponto | null>(null)
+const buscandoPosicao = ref(false)
+const raioKm = ref(25)
+const filtroTipo = ref('')
+const filtroDia = ref('')
+const precoMax = ref('')
+const soComVaga = ref(false)
+
+const TIPOS = ['Campo', 'Society', 'Quadra', 'Areia']
+const DIAS = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo']
+
+async function usarMinhaLocalizacao() {
+  buscandoPosicao.value = true
+  try {
+    posicao.value = await minhaPosicao()
+  } finally {
+    buscandoPosicao.value = false
+  }
+}
+
+/** Distância até a pelada, ou null quando falta a minha posição ou a dela. */
+function distanciaAte(g: Grupo): number | null {
+  const destino = pontoDe(g.latitude, g.longitude)
+  if (!posicao.value || !destino) return null
+  return distanciaKm(posicao.value, destino)
+}
+
+const rotuloDistancia = (g: Grupo) => {
+  const km = distanciaAte(g)
+  return km === null ? '' : formatarDistancia(km, locale.value)
+}
+
+const limparFiltros = () => {
+  filtroTipo.value = ''
+  filtroDia.value = ''
+  precoMax.value = ''
+  soComVaga.value = false
+  raioKm.value = 25
+}
+
+const temFiltro = computed(() =>
+  Boolean(filtroTipo.value || filtroDia.value || precoMax.value || soComVaga.value))
 
 const jaParticipo = (grupo: Grupo) =>
   aba.value === 'minhas' || jogadorEstaNoGrupo(grupo, sessao.jogador?.id ?? '')
@@ -37,9 +85,10 @@ async function carregar() {
 
     if (aba.value === 'minhas') lista.value = await api.meusGrupos()
     else if (busca) lista.value = await api.gruposPorCidade(busca)
-    // Sem cidade informada, mostra os grupos de que a pessoa participa — não
-    // existe rota autenticada de "todos os grupos", e nem deveria: seria um Scan.
-    else lista.value = await api.meusGrupos()
+    // Sem cidade, "próximas" passa pela vitrine pública mesmo logado: ela é a
+    // única que enxerga a base inteira, e só devolve campo de vitrine — nada de
+    // pessoa. É o que permite ordenar por distância sem pedir a cidade antes.
+    else lista.value = await publico.peladas('')
   } catch (e) {
     erro.value = (e as Error).message
   } finally {
@@ -88,9 +137,33 @@ const dataLegivel = (iso?: string) => {
 const termo = ref('')
 const visiveis = computed(() => {
   const busca = termo.value.trim().toLowerCase()
-  if (!busca) return lista.value
-  return lista.value.filter((g) =>
-    [g.nome, g.local, g.cidade, g.dia_semana].some((c) => c?.toLowerCase().includes(busca)))
+  const teto = Number(precoMax.value)
+
+  const filtradas = lista.value.filter((g) => {
+    if (busca && ![g.nome, g.local, g.cidade, g.dia_semana].some((c) => c?.toLowerCase().includes(busca))) return false
+    if (filtroTipo.value && g.tipo_pelada !== filtroTipo.value) return false
+    if (filtroDia.value && g.dia_semana !== filtroDia.value) return false
+    if (precoMax.value && Number.isFinite(teto) && Number(g.valor ?? 0) > teto) return false
+    if (soComVaga.value) {
+      const o = ocupacao(g)
+      if (o && o.dentro >= o.total) return false
+    }
+    // O raio só corta quando dá para medir: pelada sem coordenada continua
+    // visível, senão o filtro esconderia justamente quem não preencheu o mapa.
+    if (posicao.value) {
+      const km = distanciaAte(g)
+      if (km !== null && km > raioKm.value) return false
+    }
+    return true
+  })
+
+  if (!posicao.value) return filtradas
+  // Com posição conhecida, perto primeiro; sem coordenada vai para o fim.
+  return [...filtradas].sort((a, b) => {
+    const da = distanciaAte(a) ?? Number.POSITIVE_INFINITY
+    const db = distanciaAte(b) ?? Number.POSITIVE_INFINITY
+    return da - db
+  })
 })
 
 /** Quanto da pelada já está preenchido, para a barra de vagas. */
@@ -132,10 +205,48 @@ onMounted(carregar)
         {{ t('comum.limpar') }}
       </button>
       <input v-model="termo" class="campo" type="search" :placeholder="t('comum.filtrarNaLista')" />
+      <button type="button" class="botao-secundario" :disabled="buscandoPosicao" @click="usarMinhaLocalizacao">
+        {{ buscandoPosicao ? tg('buscandoLocal') : tg('perto') }}
+      </button>
       <span v-if="lista.length" class="contagem-resultado">
         {{ t('comum.resultados', visiveis.length) }}
       </span>
     </form>
+
+    <div class="painel mt-3 flex flex-wrap items-end gap-4 p-4">
+      <label class="block">
+        <span class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ tg('filtroTipo') }}</span>
+        <select v-model="filtroTipo" class="campo mt-1">
+          <option value="">{{ tg('todos') }}</option>
+          <option v-for="tp in TIPOS" :key="tp" :value="tp">{{ tp }}</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ tg('filtroDia') }}</span>
+        <select v-model="filtroDia" class="campo mt-1">
+          <option value="">{{ tg('todos') }}</option>
+          <option v-for="d in DIAS" :key="d" :value="d">{{ d }}</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ tg('precoAte') }}</span>
+        <input v-model="precoMax" inputmode="numeric" class="campo mt-1 w-24" placeholder="—" />
+      </label>
+      <label v-if="posicao" class="block">
+        <span class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">
+          {{ tg('raio') }}: {{ raioKm }} km
+        </span>
+        <input v-model.number="raioKm" type="range" min="1" max="100" step="1" class="mt-2 block w-40" />
+      </label>
+      <label class="flex items-center gap-2 pb-2">
+        <input v-model="soComVaga" type="checkbox" class="h-4 w-4" />
+        <span class="text-sm font-semibold">{{ tg('comVaga') }}</span>
+      </label>
+      <button v-if="temFiltro" type="button" class="botao-secundario" @click="limparFiltros">
+        {{ tg('limparFiltros') }}
+      </button>
+      <p v-if="!posicao" class="w-full text-xs text-[var(--color-tinta-fraca)]">{{ tg('semLocalizacao') }}</p>
+    </div>
 
     <Estado
       :carregando="carregando"
@@ -155,6 +266,9 @@ onMounted(carregar)
                   <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" />
                 </svg>
                 <span class="truncate">{{ g.cidade || t('comum.naoInformado') }}</span>
+                <span v-if="rotuloDistancia(g)" class="shrink-0 rounded-full bg-[var(--color-marca-claro)] px-2 py-0.5 text-xs font-bold text-[var(--color-marca)]">
+                  {{ rotuloDistancia(g) }}
+                </span>
               </p>
             </div>
           </div>

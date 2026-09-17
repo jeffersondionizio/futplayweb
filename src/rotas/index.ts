@@ -49,6 +49,8 @@ const rotas: RouteRecordRaw[] = [
     meta: { exigeSessao: true },
   },
   { path: '/clubes', name: 'clubes', component: () => import('../paginas/Clubes.vue') },
+  // Perfil de atleta e leitura aberta: /publico/jogador/{id} responde sem token.
+  { path: '/jogador/:id', name: 'jogador', component: () => import('../paginas/Jogador.vue') },
   {
     path: '/conta',
     name: 'conta',

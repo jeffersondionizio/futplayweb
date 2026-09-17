@@ -8,8 +8,11 @@ import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
 import Chat from '../componentes/Chat.vue'
 import ConviteEntrar from '../componentes/ConviteEntrar.vue'
+import GestaoPelada from '../componentes/GestaoPelada.vue'
+import { mensagensGestao } from '../servicos/idioma-gestao'
 
 const { t, locale } = useI18n()
+const { t: tg } = useI18n({ useScope: 'local', messages: mensagensGestao })
 const sessao = usarSessao()
 const rota = useRoute()
 const id = String(rota.params.id)
@@ -18,6 +21,8 @@ const grupo = ref<Grupo | null>(null)
 const membros = ref<Jogador[]>([])
 const carregando = ref(true)
 const erro = ref<string | null>(null)
+const agindo = ref(false)
+const avisoAcao = ref<string | null>(null)
 
 /**
  * O ranking da temporada chega como JSON em string — é o mesmo campo que o
@@ -51,6 +56,53 @@ const ranking = computed(() => {
     return []
   }
 })
+
+/**
+ * Quem administra sai de dois campos do mesmo JSON: `criado_por` é o dono e
+ * `admin` é a lista de uids promovidos, separada por vírgula. O backend confere
+ * de novo em cada ação — aqui é só para não oferecer botão que responderia 403.
+ */
+const meuUid = computed(() => sessao.jogador?.id ?? '')
+const souAdmin = computed(() => {
+  if (!grupo.value || !meuUid.value) return false
+  const admins = (grupo.value.admin ?? '').split(',').map((u) => u.trim()).filter(Boolean)
+  return grupo.value.criado_por === meuUid.value || admins.includes(meuUid.value)
+})
+const souMembro = computed(() => membros.value.some((m) => m.id === meuUid.value))
+
+const totalVagas = computed(() => Number(grupo.value?.qtde_jogadores ?? 0))
+const inscritos = computed(() => Number(grupo.value?.inscritos ?? membros.value.length))
+const vagasLivres = computed(() => Math.max(totalVagas.value - inscritos.value, 0))
+const lotada = computed(() => totalVagas.value > 0 && vagasLivres.value === 0)
+
+/** Só monta o link quando há coordenada real; "0.0" é o default de quem nunca marcou. */
+const urlMapa = computed(() => {
+  const lat = grupo.value?.latitude
+  const lon = grupo.value?.longitude
+  if (!lat || !lon || Number(lat) === 0 || Number(lon) === 0) return ''
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
+})
+
+async function acao(fn: () => Promise<void>, aviso?: string) {
+  agindo.value = true
+  erro.value = null
+  avisoAcao.value = null
+  try {
+    await fn()
+    avisoAcao.value = aviso ?? null
+    await carregar()
+  } catch (e) {
+    erro.value = (e as Error).message
+  } finally {
+    agindo.value = false
+  }
+}
+
+const entrar = () => acao(() => api.solicitarEntradaGrupo(id), tg('pedidoEnviado'))
+function sair() {
+  if (!confirm(tg('confirmarSair'))) return
+  acao(() => api.sairDoGrupo(id, meuUid.value))
+}
 
 async function carregar() {
   carregando.value = true
@@ -98,7 +150,20 @@ onMounted(carregar)
           <p class="text-sm text-[var(--color-tinta-fraca)]">{{ grupo.cidade || t('comum.naoInformado') }}</p>
         </div>
         <ConviteEntrar v-if="!sessao.autenticado" />
+        <div v-else class="flex items-center gap-3">
+          <span v-if="souMembro" class="text-sm font-bold text-[var(--color-marca)]">{{ tg('jaMembro') }}</span>
+          <button v-if="souMembro && !souAdmin" class="botao-secundario" :disabled="agindo" @click="sair">
+            {{ tg('sair') }}
+          </button>
+          <button v-else-if="!souMembro" class="botao" :disabled="agindo || lotada" @click="entrar">
+            {{ lotada ? tg('lotada') : tg('pedirEntrada') }}
+          </button>
+        </div>
       </header>
+
+      <p v-if="avisoAcao" class="painel mt-4 px-6 py-3 text-sm font-semibold text-[var(--color-marca)]">
+        {{ avisoAcao }}
+      </p>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-3">
         <dl class="painel grid grid-cols-2 gap-4 p-6" :class="sessao.autenticado ? 'lg:col-span-1' : 'lg:col-span-3'">
@@ -116,7 +181,22 @@ onMounted(carregar)
           </div>
           <div>
             <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ t('peladas.jogadores') }}</dt>
-            <dd class="font-semibold">{{ grupo.inscritos ?? membros.length }}</dd>
+            <dd class="font-semibold">
+              {{ inscritos }}<span v-if="totalVagas" class="text-[var(--color-tinta-fraca)]"> / {{ totalVagas }}</span>
+            </dd>
+            <dd v-if="totalVagas" class="mt-0.5 text-xs font-bold"
+                :class="lotada ? 'text-[var(--color-erro,#ba1a1a)]' : 'text-[var(--color-marca)]'">
+              {{ lotada ? tg('lotada') : tg('vagasRestantes', { n: vagasLivres, total: totalVagas }) }}
+            </dd>
+          </div>
+          <div v-if="grupo.jogadores_por_time">
+            <dt class="text-xs font-bold uppercase text-[var(--color-tinta-fraca)]">{{ tg('campoPorTime') }}</dt>
+            <dd class="font-semibold">{{ grupo.jogadores_por_time }} {{ tg('porTime') }}</dd>
+          </div>
+          <div v-if="urlMapa" class="col-span-2">
+            <a :href="urlMapa" target="_blank" rel="noopener" class="botao-secundario inline-flex">
+              {{ tg('verNoMapa') }}
+            </a>
           </div>
         </dl>
 
@@ -140,7 +220,10 @@ onMounted(carregar)
                   class="border-t border-[var(--color-linha)]"
                   :class="i % 2 ? 'bg-[var(--color-zebra)]' : ''">
                 <td class="px-6 py-2.5 font-bold">{{ i + 1 }}</td>
-                <td class="px-3 py-2.5 font-semibold">{{ r.nome }}</td>
+                <td class="px-3 py-2.5 font-semibold">
+                  <RouterLink :to="{ name: 'jogador', params: { id: r.uid } }"
+                              class="hover:text-[var(--color-marca)]">{{ r.nome }}</RouterLink>
+                </td>
                 <td class="px-3 py-2.5 text-center">{{ r.gols }}</td>
                 <td class="px-3 py-2.5 text-center">{{ r.assistencias }}</td>
                 <td class="px-6 py-2.5 text-center font-extrabold text-[var(--color-marca)]">{{ r.pontos }}</td>
@@ -157,10 +240,15 @@ onMounted(carregar)
           <li v-for="m in membros" :key="m.id"
               class="flex items-center gap-2 rounded-full border border-[var(--color-linha)] py-1 pl-1 pr-3">
             <Foto pasta="perfil" :id="m.id" :nome="m.nome" classe="h-8 w-8" redonda />
-            <span class="text-sm font-semibold">{{ m.nome }}</span>
+            <RouterLink :to="{ name: 'jogador', params: { id: m.id } }"
+                        class="text-sm font-semibold hover:text-[var(--color-marca)]">
+              {{ m.nome }}
+            </RouterLink>
           </li>
         </ul>
       </div>
+
+      <GestaoPelada v-if="souAdmin" :grupo="grupo" :membros="membros" @mudou="carregar" />
 
       <Chat v-if="sessao.autenticado" class="mt-6" contexto="grupo" :id="grupo.id" />
       <ConviteEntrar

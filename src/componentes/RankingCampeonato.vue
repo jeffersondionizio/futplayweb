@@ -16,7 +16,11 @@ const { t } = useI18n({ useScope: 'local', messages: mensagensCampeonato })
       <li v-for="p in lista" :key="`${p.id}:${p.clube}:${p.nome}`">
         <span class="ranking-posicao">{{ p.posicao }}</span>
         <Foto pasta="perfil" :id="p.id" :nome="p.nome" classe="h-8 w-8" redonda />
-        <div class="ranking-nome"><strong>{{ p.nome }}</strong><span>{{ nomeDoClube(p.clube) }}</span></div>
+        <div class="ranking-nome">
+          <RouterLink v-if="p.id" :to="{ name: 'jogador', params: { id: p.id } }"><strong>{{ p.nome }}</strong></RouterLink>
+          <strong v-else>{{ p.nome }}</strong>
+          <span>{{ nomeDoClube(p.clube) }}</span>
+        </div>
         <strong class="ranking-valor">{{ p.total }}<span>{{ t('total') }}</span></strong>
       </li>
     </ol>

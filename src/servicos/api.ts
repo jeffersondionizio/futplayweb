@@ -88,6 +88,8 @@ export type Jogador = {
   username?: string
   imagem?: string
   posicao?: string
+  /** O banco guarda `posicao_jogador`; a API manda as duas grafias. */
+  posicao_jogador?: string
   idade?: string
   peso?: string
   pe_dominante?: string
@@ -102,6 +104,8 @@ export type Jogador = {
   assistencias?: string
   seguidores_count?: number
   seguindo_count?: number
+  /** Presente em GET /grupo/{id}/membros: dono, admin, membro ou pendente. */
+  papel?: string
 }
 
 export type Grupo = {
@@ -125,6 +129,11 @@ export type Grupo = {
   rank_temporada?: string
   podio_temporada?: string
   temp_atual?: string
+  /** Uids de quem administra, separados por virgula. Vem de grupoParaResposta. */
+  admin?: string
+  jogadores_por_time?: string
+  latitude?: string
+  longitude?: string
 }
 
 export type Clube = {
@@ -213,6 +222,19 @@ export type EventoJogo = {
   minuto?: string
 }
 
+/** Uma solicitacao de entrada pendente, de GET /grupo/{id}/pedidos. */
+export type PedidoEntrada = {
+  grupoId: string
+  jogadorId: string
+  nome: string
+  username: string
+  imagem: string
+  idade: string
+  peso: string
+  posicao: string
+  criadoEmMillis: number
+}
+
 export type Mensagem = {
   mensagem_id: string
   autor_id: string
@@ -239,6 +261,29 @@ export const api = {
   membrosDoGrupo: (id: string) => requisitar<Jogador[]>(`/grupo/${id}/membros`),
   solicitarEntradaGrupo: (id: string) =>
     requisitar<void>(`/grupo/${id}/solicitacao`, { metodo: 'POST', corpo: {} }),
+
+  /**
+   * Gestao da pelada. Tudo passa pela mesma rota de participacao, que decide a
+   * permissao pelo papel de quem chama: `entrar` e `sair` valem para si mesmo,
+   * o resto exige dono ou admin e responde 403 caso contrario.
+   */
+  pedidosDoGrupo: (id: string) => requisitar<PedidoEntrada[]>(`/grupo/${id}/pedidos`),
+  entrarNoGrupo: (id: string) =>
+    requisitar<void>(`/grupo/${id}/participacao`, { metodo: 'POST', corpo: { acao: 'entrar' } }),
+  aceitarNoGrupo: (id: string, jogadorId: string) =>
+    requisitar<void>(`/grupo/${id}/participacao`, {
+      metodo: 'POST', corpo: { acao: 'aceitar', jogador_id: jogadorId },
+    }),
+  removerDoGrupo: (id: string, jogadorId: string) =>
+    requisitar<void>(`/grupo/${id}/participacao`, {
+      metodo: 'POST', corpo: { acao: 'remover', jogador_id: jogadorId },
+    }),
+  promoverNoGrupo: (id: string, jogadorId: string) =>
+    requisitar<void>(`/grupo/${id}/participacao`, {
+      metodo: 'POST', corpo: { acao: 'promover', jogador_id: jogadorId },
+    }),
+  atualizarGrupo: (id: string, campos: Record<string, unknown>) =>
+    requisitar<void>(`/grupo/${id}`, { metodo: 'PUT', corpo: campos }),
   sairDoGrupo: (id: string, jogadorId: string) =>
     requisitar<void>(`/grupo/${id}/participacao`, { metodo: 'POST', corpo: { jogador_id: jogadorId, acao: 'sair' } }),
 
@@ -315,6 +360,10 @@ export const publico = {
   peladas: (cidade: string) =>
     requisitar<Grupo[]>(`/publico/peladas${consulta({ cidade })}`, { semAutenticacao: true }),
   pelada: (id: string) => requisitar<Grupo>(`/publico/peladas/${id}`, { semAutenticacao: true }),
+
+  /** Cartao do atleta, por lista branca: sem email, sem uid do Firebase, sem scout. */
+  jogador: (id: string) =>
+    requisitar<Jogador>(`/publico/jogador/${id}`, { semAutenticacao: true }),
 }
 
 /** Escudo ou capa servida sem token. Foto de jogador continua exigindo sessão. */
