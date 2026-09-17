@@ -23,11 +23,7 @@ const links = [
   <header class="cabecalho-site sticky top-0 z-40 border-b">
     <div class="secao flex h-16 items-center justify-between gap-4">
       <RouterLink :to="{ name: 'inicio' }" class="marca-site flex items-center gap-2 font-extrabold">
-        <span
-          class="grid h-9 w-9 place-items-center rounded-xl font-black text-white ring-1 ring-[#b3f3ce]/75"
-          style="background: linear-gradient(135deg, #075537, #064c42); box-shadow: 0 5px 14px rgb(0 24 18 / .32), inset 0 -3px 0 #5fc992"
-          aria-hidden="true"
-        >F</span>
+        <img src="/favicon.svg" alt="" class="h-9 w-9 shrink-0" aria-hidden="true" />
         <span>{{ t('marca') }}</span>
       </RouterLink>
 
