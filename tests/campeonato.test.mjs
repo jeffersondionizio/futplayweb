@@ -4,6 +4,7 @@ import { resumoJogos, rankingJogadores, ultimosResultados, agruparRodadas, tabel
 import { proximoHorario, ordenarAgenda } from '../src/servicos/agenda.ts'
 import { extrairNomes, sortearTimes } from '../src/servicos/sorteio.ts'
 import { registrarVisita } from '../src/servicos/visitas.ts'
+import { jogadorEstaNoGrupo } from '../src/servicos/grupos.ts'
 
 const jogo = (id, extra = {}) => ({ id, campeonato_id: 'c', rodada: '1', fase: 'GRUPOS', grupo_id: null, clube_a_id: 'a', clube_b_id: 'b', status: 'FINALIZADO', placar_a: '2', placar_b: '1', ...extra })
 test('resumo só conta placares válidos de partidas finalizadas, incluindo zero a zero', () => {
@@ -94,4 +95,11 @@ test('contador registra uma visita por sessão e mantém o total deste navegador
   assert.equal(registrarVisita(armazenamento, sessao), 1)
   assert.equal(registrarVisita(armazenamento, sessao), 1)
   assert.equal(registrarVisita(armazenamento, new Map()), 2)
+})
+
+test('participação reconhece criador e inscritos, sem confundir IDs parecidos', () => {
+  assert.equal(jogadorEstaNoGrupo({ criado_por: 'criador', participantes: 'ana, bruno, carlos' }, 'bruno'), true)
+  assert.equal(jogadorEstaNoGrupo({ criado_por: 'criador', participantes: 'ana,bruno' }, 'bru'), false)
+  assert.equal(jogadorEstaNoGrupo({ criado_por: 'criador' }, 'criador'), true)
+  assert.equal(jogadorEstaNoGrupo({ participantes: '' }, 'ana'), false)
 })
