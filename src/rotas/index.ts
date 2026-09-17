@@ -19,7 +19,20 @@ const rotas: RouteRecordRaw[] = [
     meta: { exigeSessao: true },
   },
   { path: '/peladas', name: 'peladas', component: () => import('../paginas/Peladas.vue') },
+  {
+    path: '/peladas/nova',
+    name: 'criar-pelada',
+    component: () => import('../paginas/CriarPelada.vue'),
+    meta: { exigeSessao: true },
+  },
   { path: '/peladas/:id', name: 'pelada', component: () => import('../paginas/Pelada.vue') },
+  {
+    path: '/agenda',
+    name: 'agenda',
+    component: () => import('../paginas/Agenda.vue'),
+    meta: { exigeSessao: true },
+  },
+  { path: '/sorteio', name: 'sorteio', component: () => import('../paginas/Sorteio.vue') },
   { path: '/campeonatos', name: 'campeonatos', component: () => import('../paginas/Campeonatos.vue') },
   {
     path: '/campeonatos/novo',

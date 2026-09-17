@@ -14,6 +14,8 @@ const links = [
   { nome: 'campeonatos', rotulo: 'nav.campeonatos' },
   { nome: 'amistosos', rotulo: 'nav.amistosos' },
   { nome: 'clubes', rotulo: 'nav.clubes' },
+  { nome: 'agenda', rotulo: 'nav.agenda' },
+  { nome: 'sorteio', rotulo: 'nav.sorteio' },
 ]
 </script>
 

@@ -32,6 +32,9 @@ const passos = ['um', 'dois', 'tres'] as const
             <svg width="27" height="30" viewBox="0 0 24 28" fill="none" aria-hidden="true"><path d="M3 2L23 14L3 26V2Z" fill="currentColor" /></svg>
             <span><strong>{{ t('home.instalar') }}</strong><small>{{ t('home.loja') }}</small></span><span aria-hidden="true" class="seta-instalar">↗</span>
           </a>
+          <RouterLink :to="{ name: 'peladas' }" class="botao-secundario self-center">
+            {{ t('home.explorarWeb') }}
+          </RouterLink>
         </div>
       </div>
 

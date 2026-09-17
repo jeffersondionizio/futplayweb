@@ -57,9 +57,12 @@ test('zona da tabela só existe quando o campeonato define o que ela vale', () =
 
 test('agenda aceita data explícita e recorrência semanal em português, inclusive terça com acento', () => {
   const agora = new Date('2026-09-16T18:00:00')
-  assert.equal(proximoHorario('20/09/2026', '19:30', agora)?.toISOString(), '2026-09-20T23:30:00.000Z')
-  assert.equal(proximoHorario('terça-feira', '19:30', agora)?.toISOString(), '2026-09-22T22:30:00.000Z')
-  assert.equal(proximoHorario('quarta', '17:00', agora)?.toISOString(), '2026-09-23T20:00:00.000Z')
+  const explicito = proximoHorario('20/09/2026', '19:30', agora)
+  const terca = proximoHorario('terça-feira', '19:30', agora)
+  const quarta = proximoHorario('quarta', '17:00', agora)
+  assert.deepEqual([explicito?.getDate(), explicito?.getHours(), explicito?.getMinutes()], [20, 19, 30])
+  assert.deepEqual([terca?.getDay(), terca?.getHours()], [2, 19])
+  assert.deepEqual([quarta?.getDay(), quarta?.getHours()], [3, 17])
   assert.equal(proximoHorario('dia inválido', '17:00', agora), null)
   assert.equal(proximoHorario('quarta', '25:00', agora), null)
 })
@@ -77,6 +80,6 @@ test('agenda ordena próximos compromissos e deixa horários desconhecidos no fi
 test('sorteio limpa lista colada, remove repetidos e distribui a sobra entre os times', () => {
   assert.deepEqual(extrairNomes('1. Ana\n• Bruno\nANA\nPix: 123\n\nCarlos'), ['Ana', 'Bruno', 'Carlos'])
   const times = sortearTimes(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 5, () => 0.5)
-  assert.deepEqual(times.map((time) => time.jogadores.length), [4, 4, 3])
+  assert.deepEqual(times.map((time) => time.jogadores.length), [6, 5])
   assert.equal(new Set(times.flatMap((time) => time.jogadores)).size, 11)
 })

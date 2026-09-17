@@ -233,6 +233,7 @@ export const api = {
     requisitar<void>(`/jogador/${id}`, { metodo: 'PUT', corpo: campos }),
 
   meusGrupos: () => requisitar<Grupo[]>('/grupo'),
+  criarGrupo: (corpo: Record<string, unknown>) => requisitar<void>('/grupo', { metodo: 'POST', corpo }),
   gruposPorCidade: (cidade: string) => requisitar<Grupo[]>(`/grupo${consulta({ cidade })}`),
   grupo: (id: string) => requisitar<Grupo>(`/grupo/${id}`),
   membrosDoGrupo: (id: string) => requisitar<Jogador[]>(`/grupo/${id}/membros`),
@@ -317,4 +318,3 @@ export const publico = {
 /** Escudo ou capa servida sem token. Foto de jogador continua exigindo sessão. */
 export const urlImagemPublica = (pasta: 'clube' | 'grupo' | 'competicao', id: string) =>
   (id ? `${API_BASE}/publico/imagem/${pasta}/${id}` : '')
-

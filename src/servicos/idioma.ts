@@ -44,6 +44,8 @@ const ptBR = {
     campeonatos: 'Campeonatos',
     amistosos: 'Amistosos',
     clubes: 'Clubes',
+    agenda: 'Agenda',
+    sorteio: 'Sorteio',
     entrar: 'Entrar',
     sair: 'Sair',
     minhaConta: 'Minha conta',
@@ -63,6 +65,7 @@ const ptBR = {
     entrar: 'Entrar com Google',
     verPeladas: 'Ver peladas próximas',
     baixarApp: 'Baixar o aplicativo',
+    explorarWeb: 'Explorar pelo navegador',
     recursos: {
       titulo: 'Tudo que sua pelada precisa',
       sorteio: {
@@ -278,6 +281,8 @@ const en: typeof ptBR = {
     campeonatos: 'Tournaments',
     amistosos: 'Friendlies',
     clubes: 'Clubs',
+    agenda: 'Agenda',
+    sorteio: 'Draw',
     entrar: 'Sign in',
     sair: 'Sign out',
     minhaConta: 'My account',
@@ -297,6 +302,7 @@ const en: typeof ptBR = {
     entrar: 'Sign in with Google',
     verPeladas: 'Find games near you',
     baixarApp: 'Get the app',
+    explorarWeb: 'Browse on the web',
     recursos: {
       titulo: 'Everything your game needs',
       sorteio: {
