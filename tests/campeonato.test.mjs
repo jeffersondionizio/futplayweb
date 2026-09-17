@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { resumoJogos, rankingJogadores, ultimosResultados, agruparRodadas, tabelasPorGrupo, zonaDaPosicao } from '../src/servicos/estatisticas.ts'
 import { proximoHorario, ordenarAgenda } from '../src/servicos/agenda.ts'
 import { extrairNomes, sortearTimes } from '../src/servicos/sorteio.ts'
+import { registrarVisita } from '../src/servicos/visitas.ts'
 
 const jogo = (id, extra = {}) => ({ id, campeonato_id: 'c', rodada: '1', fase: 'GRUPOS', grupo_id: null, clube_a_id: 'a', clube_b_id: 'b', status: 'FINALIZADO', placar_a: '2', placar_b: '1', ...extra })
 test('resumo só conta placares válidos de partidas finalizadas, incluindo zero a zero', () => {
@@ -85,4 +86,12 @@ test('sorteio respeita o limite e numera a sobra como mais um time normal', () =
   assert.equal(times.some((time) => 'reserva' in time), false)
   assert.equal(times.every((time) => time.jogadores.length <= 5), true)
   assert.equal(new Set(times.flatMap((time) => time.jogadores)).size, 11)
+})
+
+test('contador registra uma visita por sessão e mantém o total deste navegador', () => {
+  const armazenamento = new Map()
+  const sessao = new Map()
+  assert.equal(registrarVisita(armazenamento, sessao), 1)
+  assert.equal(registrarVisita(armazenamento, sessao), 1)
+  assert.equal(registrarVisita(armazenamento, new Map()), 2)
 })
