@@ -1,4 +1,4 @@
-export type TimeSorteado = { numero: number; jogadores: string[] }
+export type TimeSorteado = { numero: number; jogadores: string[]; reserva: boolean }
 
 /** Aceita listas coladas do WhatsApp, mantendo somente nomes únicos e úteis. */
 export function extrairNomes(texto: string): string[] {
@@ -15,7 +15,7 @@ export function extrairNomes(texto: string): string[] {
   })
 }
 
-/** Replica o sorteio rápido do app: times aleatórios, com diferença máxima de uma pessoa. */
+/** Sorteia times sem ultrapassar a lotação; quem sobrar fica na reserva. */
 export function sortearTimes(nomes: string[], jogadoresPorTime: number, aleatorio = Math.random): TimeSorteado[] {
   if (nomes.length < 2 || !Number.isInteger(jogadoresPorTime) || jogadoresPorTime < 1) return []
   const embaralhados = [...nomes]
@@ -23,14 +23,13 @@ export function sortearTimes(nomes: string[], jogadoresPorTime: number, aleatori
     const alvo = Math.floor(aleatorio() * (indice + 1))
     ;[embaralhados[indice], embaralhados[alvo]] = [embaralhados[alvo], embaralhados[indice]]
   }
-  const quantidadeTimes = Math.min(embaralhados.length, Math.max(2, Math.round(embaralhados.length / jogadoresPorTime)))
-  const base = Math.floor(embaralhados.length / quantidadeTimes)
-  const sobra = embaralhados.length % quantidadeTimes
-  let inicio = 0
-  return Array.from({ length: quantidadeTimes }, (_, indice) => {
-    const tamanho = base + (indice < sobra ? 1 : 0)
-    const jogadores = embaralhados.slice(inicio, inicio + tamanho)
-    inicio += tamanho
-    return { numero: indice + 1, jogadores }
-  })
+  const quantidadeTimesCheios = Math.floor(embaralhados.length / jogadoresPorTime)
+  const sobra = embaralhados.length % jogadoresPorTime
+  const times = Array.from({ length: quantidadeTimesCheios }, (_, indice) => ({
+    numero: indice + 1,
+    jogadores: embaralhados.slice(indice * jogadoresPorTime, (indice + 1) * jogadoresPorTime),
+    reserva: false,
+  }))
+  if (sobra) times.push({ numero: times.length + 1, jogadores: embaralhados.slice(quantidadeTimesCheios * jogadoresPorTime), reserva: true })
+  return times
 }

@@ -33,7 +33,7 @@ async function compartilhar() {
     <div class="painel p-6">
       <p class="text-sm font-bold uppercase tracking-wide text-[var(--color-marca)]">Ferramenta do organizador</p>
       <h1 class="mt-1 text-3xl font-extrabold">Sorteio rápido de times</h1>
-      <p class="mt-3 text-[var(--color-tinta-suave)]">Cole um jogador por linha. Os nomes repetidos são removidos e a sobra é distribuída entre os times.</p>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">Cole um jogador por linha. Os nomes repetidos são removidos; quem sobrar forma o time reserva.</p>
 
       <label class="mt-6 block">
         <span class="text-sm font-bold">Jogadores ({{ nomes.length }})</span>
@@ -56,8 +56,8 @@ async function compartilhar() {
       </div>
       <p v-if="!times.length" class="mt-4 text-[var(--color-tinta-fraca)]">O resultado aparecerá aqui.</p>
       <div v-else class="mt-5 grid gap-4 sm:grid-cols-2">
-        <article v-for="time in times" :key="time.numero" class="rounded-xl border border-[var(--color-linha)] p-4">
-          <h3 class="font-extrabold text-[var(--color-marca)]">Time {{ time.numero }} <span class="text-sm text-[var(--color-tinta-fraca)]">({{ time.jogadores.length }})</span></h3>
+        <article v-for="time in times" :key="time.numero" class="rounded-xl border border-[var(--color-linha)] p-4" :class="{ 'bg-[var(--color-papel)]': time.reserva }">
+          <h3 class="font-extrabold text-[var(--color-marca)]">{{ time.reserva ? 'Time reserva' : `Time ${time.numero}` }} <span class="text-sm text-[var(--color-tinta-fraca)]">({{ time.jogadores.length }})</span></h3>
           <ol class="mt-3 list-inside list-decimal space-y-1 text-sm"><li v-for="jogador in time.jogadores" :key="jogador">{{ jogador }}</li></ol>
         </article>
       </div>

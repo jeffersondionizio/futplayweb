@@ -24,3 +24,11 @@ GREEN: após implementar os serviços e telas, `npm test` passou com 10/10 teste
 Validações complementares: `npm run build` passou; `npm audit --omit=dev` retornou 0 vulnerabilidades; `git diff --check` sem erros.
 
 Limite conhecido: a publicação não envia coordenadas. Diferente do app, o site pede cidade e local digitados, pois não adiciona coleta automática de localização.
+
+## Ajuste posterior — time reserva
+
+Jornada: como organizador, quero que a lotação definida seja um teto rígido e que os jogadores excedentes formem uma reserva.
+
+RED: `npm test` falhou pois 11 jogadores com limite 5 produziam `[6, 5]`.
+
+GREEN: `npm test` passou com 10/10 testes e comprova a distribuição `[5, 5, 1]`, o marcador de reserva e a ausência de times acima do limite. `npm run build` também passou.
