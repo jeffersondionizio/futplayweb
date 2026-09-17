@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { resumoJogos, rankingJogadores, ultimosResultados, agruparRodadas, tabelasPorGrupo, zonaDaPosicao } from '../src/servicos/estatisticas.ts'
+import { proximoHorario, ordenarAgenda } from '../src/servicos/agenda.ts'
+import { extrairNomes, sortearTimes } from '../src/servicos/sorteio.ts'
 
 const jogo = (id, extra = {}) => ({ id, campeonato_id: 'c', rodada: '1', fase: 'GRUPOS', grupo_id: null, clube_a_id: 'a', clube_b_id: 'b', status: 'FINALIZADO', placar_a: '2', placar_b: '1', ...extra })
 test('resumo só conta placares válidos de partidas finalizadas, incluindo zero a zero', () => {
@@ -51,4 +53,30 @@ test('zona da tabela só existe quando o campeonato define o que ela vale', () =
   assert.equal(zonaDaPosicao(1, 2, 1, false), null)
   assert.equal(zonaDaPosicao(1, 8, 0, false), null)
   assert.equal(zonaDaPosicao(8, 8, 0, false), 'rebaixamento')
+})
+
+test('agenda aceita data explícita e recorrência semanal em português, inclusive terça com acento', () => {
+  const agora = new Date('2026-09-16T18:00:00')
+  assert.equal(proximoHorario('20/09/2026', '19:30', agora)?.toISOString(), '2026-09-20T23:30:00.000Z')
+  assert.equal(proximoHorario('terça-feira', '19:30', agora)?.toISOString(), '2026-09-22T22:30:00.000Z')
+  assert.equal(proximoHorario('quarta', '17:00', agora)?.toISOString(), '2026-09-23T20:00:00.000Z')
+  assert.equal(proximoHorario('dia inválido', '17:00', agora), null)
+  assert.equal(proximoHorario('quarta', '25:00', agora), null)
+})
+
+test('agenda ordena próximos compromissos e deixa horários desconhecidos no fim', () => {
+  const agora = new Date('2026-09-16T18:00:00')
+  const agenda = ordenarAgenda([
+    { id: 'sem-hora', dia_semana: 'quarta', nome: 'Sem hora' },
+    { id: 'sabado', dia_semana: 'sábado', hora_inicio: '09:00', nome: 'Sábado' },
+    { id: 'sexta', dia_semana: 'sexta', hora_inicio: '20:00', nome: 'Sexta' },
+  ], agora)
+  assert.deepEqual(agenda.map((item) => item.grupo.id), ['sexta', 'sabado', 'sem-hora'])
+})
+
+test('sorteio limpa lista colada, remove repetidos e distribui a sobra entre os times', () => {
+  assert.deepEqual(extrairNomes('1. Ana\n• Bruno\nANA\nPix: 123\n\nCarlos'), ['Ana', 'Bruno', 'Carlos'])
+  const times = sortearTimes(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'], 5, () => 0.5)
+  assert.deepEqual(times.map((time) => time.jogadores.length), [4, 4, 3])
+  assert.equal(new Set(times.flatMap((time) => time.jogadores)).size, 11)
 })
