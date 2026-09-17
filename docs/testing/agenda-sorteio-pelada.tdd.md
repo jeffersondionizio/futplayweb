@@ -40,3 +40,11 @@ Jornada: como visitante, quero saber quantas sessões abri neste navegador e ter
 RED: `npm test` falhou por não existir o serviço de visitas.
 
 GREEN: `npm test` passou com 11/11 testes; `npm run build` passou; `npm run test:e2e` passou com 3/3 e confirmou contador, remoção do antigo botão de explorar e link `https://wa.me/5592999888648` do FAB. O contador é deliberadamente local ao navegador; não representa visitas globais.
+
+## Ajuste posterior — saída de pelada
+
+Jornada: como jogador já participante, quero ver “Sair da pelada” no lugar de “Pedir para entrar”.
+
+RED: `npm test` falhou sem o utilitário que reconhece participantes do CSV retornado pelo backend.
+
+GREEN: `npm test` passou com 12/12 testes e confirma reconhecimento exato de criador e participantes, sem confundir IDs semelhantes. `npm run build` passou. A saída usa `POST /grupo/{id}/participacao` com `acao: "sair"`, espelhando o contrato do Android.
