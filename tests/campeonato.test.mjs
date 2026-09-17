@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { resumoJogos, rankingJogadores, ultimosResultados, agruparRodadas, tabelasPorGrupo, zonaDaPosicao } from '../src/servicos/estatisticas.ts'
 import { proximoHorario, ordenarAgenda } from '../src/servicos/agenda.ts'
 import { extrairNomes, sortearTimes } from '../src/servicos/sorteio.ts'
-import { registrarVisita } from '../src/servicos/visitas.ts'
 import { jogadorEstaNoGrupo } from '../src/servicos/grupos.ts'
 
 const jogo = (id, extra = {}) => ({ id, campeonato_id: 'c', rodada: '1', fase: 'GRUPOS', grupo_id: null, clube_a_id: 'a', clube_b_id: 'b', status: 'FINALIZADO', placar_a: '2', placar_b: '1', ...extra })
@@ -89,13 +88,6 @@ test('sorteio respeita o limite e numera a sobra como mais um time normal', () =
   assert.equal(new Set(times.flatMap((time) => time.jogadores)).size, 11)
 })
 
-test('contador registra uma visita por sessão e mantém o total deste navegador', () => {
-  const armazenamento = new Map()
-  const sessao = new Map()
-  assert.equal(registrarVisita(armazenamento, sessao), 1)
-  assert.equal(registrarVisita(armazenamento, sessao), 1)
-  assert.equal(registrarVisita(armazenamento, new Map()), 2)
-})
 
 test('participação reconhece criador e inscritos, sem confundir IDs parecidos', () => {
   assert.equal(jogadorEstaNoGrupo({ criado_por: 'criador', participantes: 'ana, bruno, carlos' }, 'bruno'), true)

@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { URL_APP_ANDROID } from '../servicos/configuracao'
-import { registrarVisita } from '../servicos/visitas'
 import '../estilo/inicio.css'
 
 const { t } = useI18n()
-const visitas = ref(0)
 
 const recursos = [
   { chave: 'sorteio', icone: 'M7 4h10M7 4a3 3 0 0 1-3 3m3-3v13m10-13a3 3 0 0 0 3 3m-3-3v13M4 7v4a8 8 0 0 0 16 0V7' },
@@ -17,13 +14,6 @@ const recursos = [
 
 const passos = ['um', 'dois', 'tres'] as const
 
-onMounted(() => {
-  try {
-    visitas.value = registrarVisita(localStorage, sessionStorage)
-  } catch {
-    // Alguns navegadores privados recusam storage; a home segue acessível.
-  }
-})
 </script>
 
 <template>
@@ -44,9 +34,6 @@ onMounted(() => {
             <span><strong>{{ t('home.instalar') }}</strong><small>{{ t('home.loja') }}</small></span><span aria-hidden="true" class="seta-instalar">↗</span>
           </a>
         </div>
-        <p data-testid="contador-visitas" class="mt-4 text-sm font-semibold text-[var(--color-tinta-fraca)]">
-          Visitas neste navegador: {{ visitas || 1 }}
-        </p>
       </div>
 
       <div class="inicio-guia painel p-6">
