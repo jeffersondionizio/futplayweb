@@ -239,6 +239,8 @@ export const api = {
   membrosDoGrupo: (id: string) => requisitar<Jogador[]>(`/grupo/${id}/membros`),
   solicitarEntradaGrupo: (id: string) =>
     requisitar<void>(`/grupo/${id}/solicitacao`, { metodo: 'POST', corpo: {} }),
+  sairDoGrupo: (id: string, jogadorId: string) =>
+    requisitar<void>(`/grupo/${id}/participacao`, { metodo: 'POST', corpo: { jogador_id: jogadorId, acao: 'sair' } }),
 
   meusClubes: () => requisitar<Clube[]>('/clubes'),
   clubesPorCidade: (cidade: string) => requisitar<Clube[]>(`/clubes${consulta({ cidade })}`),

@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api, publico, type Grupo } from '../servicos/api'
+import { jogadorEstaNoGrupo } from '../servicos/grupos'
 import { usarSessao } from '../estado/sessao'
 import Estado from '../componentes/Estado.vue'
 import Foto from '../componentes/Foto.vue'
@@ -16,8 +17,10 @@ const lista = ref<Grupo[]>([])
 const carregando = ref(false)
 const erro = ref<string | null>(null)
 const pedidos = ref<Record<string, boolean>>({})
+const saindo = ref<Record<string, boolean>>({})
 
-const meusIds = computed(() => new Set(lista.value.filter((g) => g.criado_por === sessao.jogador?.id).map((g) => g.id)))
+const jaParticipo = (grupo: Grupo) =>
+  aba.value === 'minhas' || jogadorEstaNoGrupo(grupo, sessao.jogador?.id ?? '')
 
 async function carregar() {
   carregando.value = true
@@ -50,6 +53,21 @@ async function pedirEntrada(g: Grupo) {
     pedidos.value[g.id] = true
   } catch (e) {
     erro.value = (e as Error).message
+  }
+}
+
+async function sairDaPelada(g: Grupo) {
+  const jogadorId = sessao.jogador?.id
+  if (!jogadorId) return
+  saindo.value[g.id] = true
+  erro.value = null
+  try {
+    await api.sairDoGrupo(g.id, jogadorId)
+    await carregar()
+  } catch (e) {
+    erro.value = (e as Error).message
+  } finally {
+    saindo.value[g.id] = false
   }
 }
 
@@ -182,7 +200,16 @@ onMounted(carregar)
               {{ t('comum.ver') }}
             </RouterLink>
             <button
-              v-if="sessao.autenticado && !meusIds.has(g.id)"
+              v-if="sessao.autenticado && jaParticipo(g)"
+              type="button"
+              class="botao-secundario"
+              :disabled="saindo[g.id]"
+              @click="sairDaPelada(g)"
+            >
+              {{ saindo[g.id] ? t('peladas.saindo') : t('peladas.sair') }}
+            </button>
+            <button
+              v-else-if="sessao.autenticado"
               type="button"
               class="botao-primario"
               :disabled="pedidos[g.id] || g.pedido_pendente"
