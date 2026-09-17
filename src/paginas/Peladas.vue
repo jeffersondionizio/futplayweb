@@ -180,8 +180,8 @@ onMounted(carregar)
 <template>
   <section class="secao py-10">
     <header class="capa-lista">
-      <h1>{{ t('peladas.titulo') }}</h1>
-      <p>{{ t('home.subtitulo') }}</p>
+      <h1>Como organizar peladas de futebol</h1>
+      <p>Encontre jogos, confirme jogadores, acompanhe vagas e reúna o seu grupo de futebol amador.</p>
 
       <div v-if="sessao.autenticado" class="abas-lista" role="tablist">
         <button
@@ -336,5 +336,10 @@ onMounted(carregar)
         </li>
       </ul>
     </Estado>
+    <article class="painel mt-8 p-6">
+      <h2 class="text-2xl font-extrabold">Organize sua pelada sem deixar ninguém de fora</h2>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">Defina local, horário e quantidade de vagas. Peça confirmação dos jogadores antes do jogo e use o sorteador de times quando a lista estiver fechada.</p>
+      <RouterLink :to="{ name: 'sorteio' }" class="mt-4 inline-block font-bold text-[var(--color-marca)]">Abrir sorteador de times →</RouterLink>
+    </article>
   </section>
 </template>

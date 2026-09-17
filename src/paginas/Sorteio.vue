@@ -32,8 +32,8 @@ async function compartilhar() {
   <section class="secao grid gap-6 py-10 lg:grid-cols-2">
     <div class="painel p-6">
       <p class="text-sm font-bold uppercase tracking-wide text-[var(--color-marca)]">Ferramenta do organizador</p>
-      <h1 class="mt-1 text-3xl font-extrabold">Sorteio rápido de times</h1>
-      <p class="mt-3 text-[var(--color-tinta-suave)]">Cole um jogador por linha. Os nomes repetidos são removidos; quem sobrar forma o próximo time.</p>
+      <h1 class="mt-1 text-3xl font-extrabold">Sorteador de times de futebol grátis</h1>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">Cole um jogador por linha, defina o tamanho das equipes e faça o sorteio para sua pelada. Os nomes repetidos são removidos; quem sobrar forma o próximo time.</p>
 
       <label class="mt-6 block">
         <span class="text-sm font-bold">Jogadores ({{ nomes.length }})</span>
@@ -62,5 +62,13 @@ async function compartilhar() {
         </article>
       </div>
     </div>
+  </section>
+  <section class="secao pb-12">
+    <article class="painel p-6">
+      <h2 class="text-2xl font-extrabold">Como sortear times equilibrados?</h2>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">Distribua goleiros e jogadores que atuam na mesma posição antes do sorteio. Depois, use a ferramenta para dividir os demais nomes e ajuste somente se houver um desequilíbrio evidente.</p>
+      <h2 class="mt-6 text-xl font-extrabold">Sorteio de times para pelada</h2>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">O resultado pode ser copiado e enviado ao grupo. Para guardar jogadores, organizar jogos e acompanhar resultados, use o FutPlay.</p>
+    </article>
   </section>
 </template>

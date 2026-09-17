@@ -61,8 +61,8 @@ onMounted(carregar)
     <header class="capa-lista">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>{{ t('campeonatos.titulo') }}</h1>
-          <p>{{ t('campeonatos.chamada') }}</p>
+          <h1>Gerenciador de campeonatos de futebol amador</h1>
+          <p>Crie competições, acompanhe jogos, fases, tabelas e classificações do seu campeonato.</p>
         </div>
         <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-campeonato' }" class="botao-primario shrink-0">
           + {{ t('criar.campeonato') }}
@@ -128,5 +128,9 @@ onMounted(carregar)
         </li>
       </ul>
     </Estado>
+    <article class="painel mt-8 p-6">
+      <h2 class="text-2xl font-extrabold">Como organizar um campeonato de futebol</h2>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">Comece definindo clubes, formato e datas. Em seguida, publique os confrontos e mantenha resultados e classificação atualizados para que todos acompanhem a competição.</p>
+    </article>
   </section>
 </template>

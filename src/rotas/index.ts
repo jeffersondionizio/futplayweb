@@ -8,6 +8,7 @@
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { usarSessao } from '../estado/sessao'
+import { aplicarSeo } from '../servicos/seo'
 
 const rotas: RouteRecordRaw[] = [
   { path: '/', name: 'inicio', component: () => import('../paginas/Inicio.vue') },
@@ -86,3 +87,5 @@ router.beforeEach(async (para) => {
   if (sessao.precisaCompletar && para.name !== 'cadastro') return { name: 'cadastro' }
   return true
 })
+
+router.afterEach((para) => aplicarSeo(para.path))

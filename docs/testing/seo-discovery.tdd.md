@@ -27,3 +27,7 @@ The GREEN implementation adds a canonical URL, keyword-focused title and descrip
 ## Known external follow-up
 
 Publishing, Google Search Console ownership verification, sitemap submission, and URL inspection were not performed because they change external state.
+
+## Route-intent expansion
+
+The follow-up SEO run added route-specific title and description guarantees for the public sorteio, peladas and campeonatos pages. The RED run failed because `src/servicos/seo.ts` did not exist; the GREEN run passed all 14 tests, with 92.54% lines and 92.99% branches overall. `npm run build` and `npx wrangler deploy --dry-run` also passed.
