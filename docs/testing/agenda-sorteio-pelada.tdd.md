@@ -32,3 +32,11 @@ Jornada: como organizador, quero que a lotação definida seja um teto rígido e
 RED: `npm test` falhou pois 11 jogadores com limite 5 produziam `[6, 5]`.
 
 GREEN: `npm test` passou com 10/10 testes e comprova a distribuição `[5, 5, 1]`, a numeração contínua até o último time e a ausência de times acima do limite. `npm run build` também passou.
+
+## Ajuste posterior — contador e contato
+
+Jornada: como visitante, quero saber quantas sessões abri neste navegador e ter um atalho sempre disponível para falar com o desenvolvedor no WhatsApp.
+
+RED: `npm test` falhou por não existir o serviço de visitas.
+
+GREEN: `npm test` passou com 11/11 testes; `npm run build` passou; `npm run test:e2e` passou com 3/3 e confirmou contador, remoção do antigo botão de explorar e link `https://wa.me/5592999888648` do FAB. O contador é deliberadamente local ao navegador; não representa visitas globais.

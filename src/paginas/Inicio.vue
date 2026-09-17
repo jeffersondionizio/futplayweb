@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { URL_APP_ANDROID } from '../servicos/configuracao'
+import { registrarVisita } from '../servicos/visitas'
 import '../estilo/inicio.css'
 
 const { t } = useI18n()
+const visitas = ref(0)
 
 const recursos = [
   { chave: 'sorteio', icone: 'M7 4h10M7 4a3 3 0 0 1-3 3m3-3v13m10-13a3 3 0 0 0 3 3m-3-3v13M4 7v4a8 8 0 0 0 16 0V7' },
@@ -13,6 +16,14 @@ const recursos = [
 ]
 
 const passos = ['um', 'dois', 'tres'] as const
+
+onMounted(() => {
+  try {
+    visitas.value = registrarVisita(localStorage, sessionStorage)
+  } catch {
+    // Alguns navegadores privados recusam storage; a home segue acessível.
+  }
+})
 </script>
 
 <template>
@@ -32,10 +43,10 @@ const passos = ['um', 'dois', 'tres'] as const
             <svg width="27" height="30" viewBox="0 0 24 28" fill="none" aria-hidden="true"><path d="M3 2L23 14L3 26V2Z" fill="currentColor" /></svg>
             <span><strong>{{ t('home.instalar') }}</strong><small>{{ t('home.loja') }}</small></span><span aria-hidden="true" class="seta-instalar">↗</span>
           </a>
-          <RouterLink :to="{ name: 'peladas' }" class="botao-secundario self-center">
-            {{ t('home.explorarWeb') }}
-          </RouterLink>
         </div>
+        <p data-testid="contador-visitas" class="mt-4 text-sm font-semibold text-[var(--color-tinta-fraca)]">
+          Visitas neste navegador: {{ visitas || 1 }}
+        </p>
       </div>
 
       <div class="inicio-guia painel p-6">
@@ -84,5 +95,14 @@ const passos = ['um', 'dois', 'tres'] as const
     na mesma página não convencem mais, só ocupam a rolagem.
   -->
   <aside class="instalar-mobile" :aria-label="t('home.appSelo')"><div><strong>FutPlay</strong><span>{{ t('home.chamadaMobile') }}</span></div><a :href="URL_APP_ANDROID" class="botao-primario">{{ t('home.instalar') }} <span aria-hidden="true">↗</span></a></aside>
+  <a
+    href="https://wa.me/5592999888648"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Falar com o desenvolvedor pelo WhatsApp"
+    class="fixed bottom-6 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#25D366]/30 sm:right-7"
+  >
+    <svg class="h-7 w-7" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M19.1 17.4c-.3-.2-1.7-.8-2-.9-.3-.1-.5-.2-.7.2-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.8-.9-3-1.6-4.2-3.6-.3-.5.3-.5.8-1.7.1-.2 0-.4-.1-.6-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.7 5.9 5.2 2.2 1 3.1 1.1 4.2.9.7-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.5Z" /><path d="M16 3.2a12.6 12.6 0 0 0-10.8 19L3.5 28.8l6.8-1.8A12.7 12.7 0 1 0 16 3.2Zm0 23.1c-1.9 0-3.7-.5-5.3-1.5l-.4-.2-4 1 1.1-3.9-.3-.4A10.5 10.5 0 1 1 16 26.3Z" /></svg>
+  </a>
   </div>
 </template>
