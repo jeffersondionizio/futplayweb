@@ -16,7 +16,7 @@ test('home document describes FutPlay for football-organizing searches', () => {
 test('crawl files expose the public FutPlay search routes', () => {
   const robots = fs.readFileSync(path.join(root, 'public', 'robots.txt'), 'utf8')
   const sitemap = fs.readFileSync(path.join(root, 'public', 'sitemap.xml'), 'utf8')
-  assert.match(robots, /Sitemap: https:\/\/futplay\.bibiprogramadortop\.win\/sitemap\.xml/)
+  assert.match(robots, /Sitemap: https:\/\/futplay\.bibiprogramadortop\.win\/sitemap\.xml/);
   ['/sorteio', '/peladas', '/campeonatos', '/amistosos'].forEach((route) => {
     assert.match(sitemap, new RegExp(`<loc>https://futplay\\.bibiprogramadortop\\.win${route}<\\/loc>`))
   })
