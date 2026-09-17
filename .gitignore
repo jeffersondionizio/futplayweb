@@ -9,3 +9,6 @@ dist/
 !.env.example
 .DS_Store
 *.local
+
+# Snapshot local baixado das Lambdas AWS para auditoria; nao versionar artefatos ou configuracoes do backend.
+/backend/aws-snapshot-*/
