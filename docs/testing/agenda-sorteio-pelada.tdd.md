@@ -25,10 +25,10 @@ Validações complementares: `npm run build` passou; `npm audit --omit=dev` reto
 
 Limite conhecido: a publicação não envia coordenadas. Diferente do app, o site pede cidade e local digitados, pois não adiciona coleta automática de localização.
 
-## Ajuste posterior — time reserva
+## Ajuste posterior — sobra como time normal
 
-Jornada: como organizador, quero que a lotação definida seja um teto rígido e que os jogadores excedentes formem uma reserva.
+Jornada: como organizador, quero que a lotação definida seja um teto rígido e que os jogadores excedentes formem o próximo time numerado.
 
 RED: `npm test` falhou pois 11 jogadores com limite 5 produziam `[6, 5]`.
 
-GREEN: `npm test` passou com 10/10 testes e comprova a distribuição `[5, 5, 1]`, o marcador de reserva e a ausência de times acima do limite. `npm run build` também passou.
+GREEN: `npm test` passou com 10/10 testes e comprova a distribuição `[5, 5, 1]`, a numeração contínua até o último time e a ausência de times acima do limite. `npm run build` também passou.

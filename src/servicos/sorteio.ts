@@ -1,4 +1,4 @@
-export type TimeSorteado = { numero: number; jogadores: string[]; reserva: boolean }
+export type TimeSorteado = { numero: number; jogadores: string[] }
 
 /** Aceita listas coladas do WhatsApp, mantendo somente nomes únicos e úteis. */
 export function extrairNomes(texto: string): string[] {
@@ -15,7 +15,7 @@ export function extrairNomes(texto: string): string[] {
   })
 }
 
-/** Sorteia times sem ultrapassar a lotação; quem sobrar fica na reserva. */
+/** Sorteia times sem ultrapassar a lotação; quem sobra forma o próximo time. */
 export function sortearTimes(nomes: string[], jogadoresPorTime: number, aleatorio = Math.random): TimeSorteado[] {
   if (nomes.length < 2 || !Number.isInteger(jogadoresPorTime) || jogadoresPorTime < 1) return []
   const embaralhados = [...nomes]
@@ -28,8 +28,7 @@ export function sortearTimes(nomes: string[], jogadoresPorTime: number, aleatori
   const times = Array.from({ length: quantidadeTimesCheios }, (_, indice) => ({
     numero: indice + 1,
     jogadores: embaralhados.slice(indice * jogadoresPorTime, (indice + 1) * jogadoresPorTime),
-    reserva: false,
   }))
-  if (sobra) times.push({ numero: times.length + 1, jogadores: embaralhados.slice(quantidadeTimesCheios * jogadoresPorTime), reserva: true })
+  if (sobra) times.push({ numero: times.length + 1, jogadores: embaralhados.slice(quantidadeTimesCheios * jogadoresPorTime) })
   return times
 }
