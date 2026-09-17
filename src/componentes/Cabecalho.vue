@@ -25,7 +25,7 @@ const links = [
       <RouterLink :to="{ name: 'inicio' }" class="marca-site flex items-center gap-2 font-extrabold">
         <span
           class="grid h-9 w-9 place-items-center rounded-xl font-black text-white ring-1 ring-[#b3f3ce]/75"
-          style="background: linear-gradient(135deg, #16b66d, #0b8c78); box-shadow: 0 5px 14px rgb(0 24 18 / .24), inset 0 -3px 0 #a8ebc5"
+          style="background: linear-gradient(135deg, #075537, #064c42); box-shadow: 0 5px 14px rgb(0 24 18 / .32), inset 0 -3px 0 #5fc992"
           aria-hidden="true"
         >F</span>
         <span>{{ t('marca') }}</span>
