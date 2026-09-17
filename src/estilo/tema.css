@@ -8,17 +8,17 @@
  */
 
 @theme static {
-  --color-marca: #008040;
-  --color-marca-vivo: #06aa48;
-  --color-marca-escuro: #077633;
-  --color-marca-claro: #eaf7ef;
-  --color-destaque: #8ee6ae;
+  --color-marca: #087a47;
+  --color-marca-vivo: #12a866;
+  --color-marca-escuro: #075537;
+  --color-marca-claro: #e9f8f0;
+  --color-destaque: #a8ebc5;
 
-  --color-tinta: #202722;
-  --color-tinta-suave: #48524b;
-  --color-tinta-fraca: #657068;
+  --color-tinta: #15251d;
+  --color-tinta-suave: #52625a;
+  --color-tinta-fraca: #738179;
 
-  --color-papel: #f5f7f6;
+  --color-papel: #f6f8f7;
   --color-painel: #ffffff;
   --color-linha: #e2e8e3;
   --color-zebra: #f4f7f4;
@@ -53,7 +53,10 @@
   }
 
   body {
-    background: var(--color-papel);
+    background:
+      radial-gradient(circle at 100% 0, rgb(67 170 136 / .09), transparent 26rem),
+      radial-gradient(circle at 0 44rem, rgb(74 130 196 / .055), transparent 30rem),
+      var(--color-papel);
     color: var(--color-tinta);
     font-family: var(--font-sans);
     line-height: 1.6;
@@ -79,8 +82,8 @@
 
 @layer components {
   .painel {
-    @apply rounded-xl border border-[var(--color-linha)] bg-[var(--color-painel)];
-    box-shadow: 0 1px 2px rgb(20 45 28 / .025), 0 6px 20px rgb(20 45 28 / .035);
+    @apply rounded-2xl border border-[var(--color-linha)] bg-[var(--color-painel)];
+    box-shadow: 0 1px 2px rgb(20 45 28 / .02), 0 10px 28px rgb(20 45 28 / .025);
   }
 
   /*
@@ -91,16 +94,20 @@
   .botao,
   .botao-primario,
   .botao-secundario {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2
            text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
   }
 
-  .botao, .botao-primario, .botao-secundario { min-height: 44px; letter-spacing: -.01em; }
-  .botao-primario { box-shadow: 0 2px 3px rgb(0 80 40 / .12); }
+  .botao, .botao-primario, .botao-secundario { min-height: 42px; letter-spacing: -.01em; }
+  .botao-primario { box-shadow: 0 5px 12px rgb(7 100 58 / .14); }
   .botao-secundario:hover { background: var(--color-marca-claro); }
 
   .botao-primario {
-    @apply bg-[var(--color-marca)] text-white hover:bg-[var(--color-marca-escuro)];
+    background: linear-gradient(135deg, var(--color-marca), #0c8b72);
+    @apply text-white;
+  }
+  .botao-primario:hover {
+    background: linear-gradient(135deg, var(--color-marca-escuro), #087060);
   }
 
   .botao-secundario {
@@ -109,7 +116,7 @@
   }
 
   .campo {
-    @apply w-full rounded-lg border border-[var(--color-linha)] bg-white px-3 py-2.5
+    @apply w-full rounded-xl border border-[var(--color-linha)] bg-white px-3 py-2.5
            text-sm text-[var(--color-tinta)] placeholder:text-[var(--color-tinta-fraca)]
            focus:border-[var(--color-marca)] focus:outline-none;
     min-height: 44px;
@@ -126,13 +133,13 @@
   }
 
   .cabecalho-site {
-    background: #076b3b;
+    background: linear-gradient(105deg, #063d31, #087747 58%, #0b6f6e);
     color: white;
     border-color: rgb(255 255 255 / .15);
     box-shadow: inset 0 3px var(--color-marca-vivo), 0 3px 12px rgb(0 60 30 / .08);
   }
 
-  .cabecalho-site .marca-site { color: white; font-size: 1.5rem; letter-spacing: -.05em; }
+  .cabecalho-site .marca-site { color: white; font-size: 1.35rem; letter-spacing: -.05em; }
   .cabecalho-site .link-cabecalho { color: white; transition: background .15s; }
   .cabecalho-site .link-cabecalho:hover,
   .cabecalho-site .link-cabecalho.link-ativo,

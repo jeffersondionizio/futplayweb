@@ -1,7 +1,7 @@
-.inicio-hero { background: #073e29; color: white; isolation: isolate; }
-.inicio-hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 85% 5%, #087e46 0, transparent 55%); }
+.inicio-hero { background: linear-gradient(125deg, #073d31 0%, #075a43 52%, #0b6270 130%); color: white; isolation: isolate; }
+.inicio-hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 85% 5%, rgb(47 188 143 / .32) 0, transparent 52%), radial-gradient(ellipse at 10% 100%, rgb(65 129 217 / .15) 0, transparent 46%); }
 .inicio-hero::after { content: ''; position: absolute; height: 340px; width: 340px; border: 1px solid #ffffff0d; border-radius: 50%; left: -180px; bottom: -170px; pointer-events: none; }
-.inicio-apresentacao h1 { max-width: 620px; font-size: clamp(2.5rem, 4.5vw, 3.7rem); line-height: 1.06; letter-spacing: -.055em; text-wrap: balance; }
+.inicio-apresentacao h1 { max-width: 620px; font-size: clamp(2.35rem, 4.2vw, 3.45rem); line-height: 1.07; letter-spacing: -.055em; text-wrap: balance; }
 .inicio-apresentacao > p:not(.inicio-selo) { color: #c7ded0; line-height: 1.75; font-size: 1.05rem; max-width: 470px; }
 .inicio-selo { color: #a9efbf; display: inline-flex; align-items: center; gap: .6rem; font-size: .68rem; letter-spacing: .12em; margin-bottom: 1.4rem; }
 .inicio-selo::before { content: ''; width: 7px; height: 7px; background: #49db83; border-radius: 50%; box-shadow: 0 0 0 4px #49db831a; }
@@ -15,7 +15,7 @@
 .seta-instalar { margin-left: 1rem; font-size: 1.5rem; }
 .inicio-hero :focus-visible { outline-color: #c7f77d; }
 .instalar-mobile { display: none; }
-.inicio-guia { color: var(--color-tinta); box-shadow: 0 24px 70px #001e2540; padding: 1.75rem; border: 1px solid #ffffff70; border-radius: 20px; }
+.inicio-guia { color: var(--color-tinta); box-shadow: 0 24px 70px #001e2530; padding: 1.5rem; border: 1px solid #ffffff70; border-radius: 20px; }
 .inicio-guia h2 { font-size: .7rem; letter-spacing: .1em; margin-top: 1.5rem; }
 .inicio-guia ol { margin-top: 1.25rem; }
 .inicio-guia li + li { border-top: 1px solid var(--color-linha); padding-top: 1.15rem; }

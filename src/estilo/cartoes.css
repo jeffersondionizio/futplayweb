@@ -11,17 +11,17 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: .875rem;
+  border-radius: 1rem;
   border: 1px solid var(--color-linha);
   background: var(--color-painel);
-  box-shadow: 0 1px 2px rgb(20 45 28 / .03);
+  box-shadow: 0 1px 2px rgb(20 45 28 / .02), 0 8px 24px rgb(20 45 28 / .02);
   transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
 .cartao:hover {
   transform: translateY(-2px);
-  border-color: #cfe0d5;
-  box-shadow: 0 2px 4px rgb(20 45 28 / .05), 0 14px 30px rgb(20 45 28 / .09);
+  border-color: #cde6d9;
+  box-shadow: 0 4px 12px rgb(20 45 28 / .05), 0 16px 32px rgb(20 45 28 / .06);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -32,7 +32,7 @@
 .cartao-topo {
   position: relative;
   padding: .7rem .85rem;
-  background: linear-gradient(135deg, #0a6a3a 0%, var(--color-marca-vivo) 140%);
+  background: linear-gradient(125deg, #07563b 0%, #0b8b59 70%, #159b87 130%);
   color: white;
   display: flex;
   align-items: center;
@@ -51,6 +51,8 @@
 }
 
 .cartao-topo > * { position: relative; z-index: 1; }
+.cartao:nth-child(3n + 2) .cartao-topo { background: linear-gradient(125deg, #124e64, #18736b 72%, #1a9b72 130%); }
+.cartao:nth-child(3n) .cartao-topo { background: linear-gradient(125deg, #174a45, #087a47 70%, #159b87 130%); }
 .cartao-topo img, .cartao-topo > span[aria-hidden] {
   border-color: rgb(255 255 255 / .35);
   background: rgb(255 255 255 / .16);
@@ -185,12 +187,12 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 170px;
+  min-height: 154px;
   overflow: hidden;
   margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(120deg, #06422a 0%, #0a7541 58%, var(--color-marca-vivo) 130%);
+  padding: 1.35rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(115deg, #063f32 0%, #0b6f4a 55%, #126e72 130%);
   color: white;
 }
 
