@@ -1,6 +1,18 @@
 <script setup lang="ts">
+/**
+ * Sorteador de times.
+ *
+ * É a página que mais responde a busca direta — "sorteador de times de futebol"
+ * em português, "random soccer team generator" em inglês — e funciona sem conta
+ * nenhuma. Por isso todo o texto vem do i18n: a versão em `/en/team-generator`
+ * precisa ser uma página inglesa de verdade, não uma tela em português com o
+ * título traduzido.
+ */
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { extrairNomes, sortearTimes } from '../servicos/sorteio'
+
+const { t } = useI18n()
 
 const texto = ref('')
 const jogadoresPorTime = ref(5)
@@ -12,18 +24,20 @@ function sortear() {
   erro.value = ''
   if (nomes.value.length < 2) {
     times.value = []
-    erro.value = 'Informe pelo menos dois jogadores.'
+    erro.value = t('sorteio.minimo')
     return
   }
   times.value = sortearTimes(nomes.value, jogadoresPorTime.value)
 }
 
 async function compartilhar() {
-  const resultado = times.value.map((time) => `Time ${time.numero}\n${time.jogadores.map((nome) => `• ${nome}`).join('\n')}`).join('\n\n')
+  const resultado = times.value
+    .map((time) => `${t('sorteio.time', { n: time.numero })}\n${time.jogadores.map((nome) => `• ${nome}`).join('\n')}`)
+    .join('\n\n')
   try {
-    await navigator.clipboard.writeText(`FutPlay — sorteio de times\n\n${resultado}`)
+    await navigator.clipboard.writeText(`${t('sorteio.cabecalhoCopia')}\n\n${resultado}`)
   } catch {
-    erro.value = 'Não foi possível copiar. Selecione o resultado manualmente.'
+    erro.value = t('sorteio.semCopiar')
   }
 }
 </script>
@@ -31,33 +45,38 @@ async function compartilhar() {
 <template>
   <section class="secao grid gap-6 py-10 lg:grid-cols-2">
     <div class="painel p-6">
-      <p class="text-sm font-bold uppercase tracking-wide text-[var(--color-marca)]">Ferramenta do organizador</p>
-      <h1 class="mt-1 text-3xl font-extrabold">Sorteador de times de futebol grátis</h1>
-      <p class="mt-3 text-[var(--color-tinta-suave)]">Cole um jogador por linha, defina o tamanho das equipes e faça o sorteio para sua pelada. Os nomes repetidos são removidos; quem sobrar forma o próximo time.</p>
+      <p class="text-sm font-bold uppercase tracking-wide text-[var(--color-marca)]">{{ t('sorteio.selo') }}</p>
+      <h1 class="mt-1 text-3xl font-extrabold">{{ t('sorteio.h1') }}</h1>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">{{ t('sorteio.lead') }}</p>
 
       <label class="mt-6 block">
-        <span class="text-sm font-bold">Jogadores ({{ nomes.length }})</span>
-        <textarea v-model="texto" class="campo mt-1 min-h-56" placeholder="Ana&#10;Bruno&#10;Carlos" />
+        <span class="text-sm font-bold">{{ t('sorteio.jogadores') }} ({{ nomes.length }})</span>
+        <textarea v-model="texto" class="campo mt-1 min-h-56" :placeholder="t('sorteio.exemplo')" />
       </label>
       <label class="mt-4 block max-w-52">
-        <span class="text-sm font-bold">Meta de jogadores por time</span>
+        <span class="text-sm font-bold">{{ t('sorteio.meta') }}</span>
         <select v-model.number="jogadoresPorTime" class="campo mt-1">
-          <option v-for="n in 14" :key="n + 1" :value="n + 1">{{ n + 1 }} jogadores</option>
+          <option v-for="n in 14" :key="n + 1" :value="n + 1">{{ t('sorteio.porTime', { n: n + 1 }) }}</option>
         </select>
       </label>
       <p v-if="erro" class="mt-4 text-sm font-semibold text-[var(--color-estado-erro)]">{{ erro }}</p>
-      <button type="button" class="botao-primario mt-6" @click="sortear">Sortear times</button>
+      <button type="button" class="botao-primario mt-6" @click="sortear">{{ t('sorteio.sortear') }}</button>
     </div>
 
     <div class="painel p-6" aria-live="polite">
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-xl font-extrabold">Resultado</h2>
-        <button v-if="times.length" type="button" class="botao-secundario" @click="compartilhar">Copiar</button>
+        <h2 class="text-xl font-extrabold">{{ t('sorteio.resultado') }}</h2>
+        <button v-if="times.length" type="button" class="botao-secundario" @click="compartilhar">
+          {{ t('sorteio.copiar') }}
+        </button>
       </div>
-      <p v-if="!times.length" class="mt-4 text-[var(--color-tinta-fraca)]">O resultado aparecerá aqui.</p>
+      <p v-if="!times.length" class="mt-4 text-[var(--color-tinta-fraca)]">{{ t('sorteio.vazio') }}</p>
       <div v-else class="mt-5 grid gap-4 sm:grid-cols-2">
         <article v-for="time in times" :key="time.numero" class="rounded-xl border border-[var(--color-linha)] p-4">
-          <h3 class="font-extrabold text-[var(--color-marca)]">Time {{ time.numero }} <span class="text-sm text-[var(--color-tinta-fraca)]">({{ time.jogadores.length }})</span></h3>
+          <h3 class="font-extrabold text-[var(--color-marca)]">
+            {{ t('sorteio.time', { n: time.numero }) }}
+            <span class="text-sm text-[var(--color-tinta-fraca)]">({{ time.jogadores.length }})</span>
+          </h3>
           <ol class="mt-3 list-inside list-decimal space-y-1 text-sm"><li v-for="jogador in time.jogadores" :key="jogador">{{ jogador }}</li></ol>
         </article>
       </div>
@@ -65,10 +84,10 @@ async function compartilhar() {
   </section>
   <section class="secao pb-12">
     <article class="painel p-6">
-      <h2 class="text-2xl font-extrabold">Como sortear times equilibrados?</h2>
-      <p class="mt-3 text-[var(--color-tinta-suave)]">Distribua goleiros e jogadores que atuam na mesma posição antes do sorteio. Depois, use a ferramenta para dividir os demais nomes e ajuste somente se houver um desequilíbrio evidente.</p>
-      <h2 class="mt-6 text-xl font-extrabold">Sorteio de times para pelada</h2>
-      <p class="mt-3 text-[var(--color-tinta-suave)]">O resultado pode ser copiado e enviado ao grupo. Para guardar jogadores, organizar jogos e acompanhar resultados, use o FutPlay.</p>
+      <h2 class="text-2xl font-extrabold">{{ t('sorteio.comoTitulo') }}</h2>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">{{ t('sorteio.comoTexto') }}</p>
+      <h2 class="mt-6 text-xl font-extrabold">{{ t('sorteio.peladaTitulo') }}</h2>
+      <p class="mt-3 text-[var(--color-tinta-suave)]">{{ t('sorteio.peladaTexto') }}</p>
     </article>
   </section>
 </template>

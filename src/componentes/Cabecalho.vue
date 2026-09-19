@@ -1,13 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { usarSessao } from '../estado/sessao'
+import { caminhoTraduzido, idiomaDoCaminho } from '../servicos/seo'
 import SeletorIdioma from './SeletorIdioma.vue'
 import Foto from './Foto.vue'
 
 const { t } = useI18n()
 const sessao = usarSessao()
+const rota = useRoute()
+const roteador = useRouter()
 const menuAberto = ref(false)
+
+const idioma = computed(() => idiomaDoCaminho(rota.path))
+
+/**
+ * O link segue o idioma do endereço aberto.
+ *
+ * `{ name }` resolveria sempre para o caminho português — quem estivesse em
+ * `/en/team-generator` voltaria para `/campeonatos` ao clicar no menu, trocando
+ * a língua sem pedir.
+ */
+const destino = (nome: string) => caminhoTraduzido(roteador.resolve({ name: nome }).path, idioma.value)
 
 const links = [
   { nome: 'peladas', rotulo: 'nav.peladas' },
@@ -22,7 +37,7 @@ const links = [
 <template>
   <header class="cabecalho-site sticky top-0 z-40 border-b">
     <div class="secao flex h-16 items-center justify-between gap-4">
-      <RouterLink :to="{ name: 'inicio' }" class="marca-site flex items-center gap-2 font-extrabold">
+      <RouterLink :to="destino('inicio')" class="marca-site flex items-center gap-2 font-extrabold">
         <img src="/favicon.svg" alt="" class="h-9 w-9 shrink-0" aria-hidden="true" />
         <span>{{ t('marca') }}</span>
       </RouterLink>
@@ -31,7 +46,7 @@ const links = [
         <RouterLink
           v-for="l in links"
           :key="l.nome"
-          :to="{ name: l.nome }"
+          :to="destino(l.nome)"
           class="link-cabecalho rounded-lg px-3 py-2 text-sm font-semibold"
           active-class="link-ativo"
         >{{ t(l.rotulo) }}</RouterLink>
@@ -42,14 +57,14 @@ const links = [
 
         <RouterLink
           v-if="sessao.autenticado"
-          :to="{ name: 'conta' }"
+          :to="destino('conta')"
           class="conta-cabecalho flex items-center gap-2 rounded-lg py-1 pl-1 pr-3"
         >
           <Foto v-if="sessao.jogador?.id" pasta="perfil" :id="sessao.jogador.id" :nome="sessao.jogador.nome" classe="h-8 w-8" redonda />
           <span class="hidden text-sm font-semibold sm:inline">{{ sessao.jogador?.nome }}</span>
         </RouterLink>
 
-        <RouterLink v-else :to="{ name: 'entrar' }" class="botao-primario">
+        <RouterLink v-else :to="destino('entrar')" class="botao-primario">
           {{ t('nav.entrar') }}
         </RouterLink>
 
@@ -73,7 +88,7 @@ const links = [
         <RouterLink
           v-for="l in links"
           :key="l.nome"
-          :to="{ name: l.nome }"
+          :to="destino(l.nome)"
           class="rounded-lg px-3 py-2.5 text-sm font-semibold text-[var(--color-tinta-suave)]"
           active-class="bg-[var(--color-marca-claro)] text-[var(--color-marca)]"
           @click="menuAberto = false"

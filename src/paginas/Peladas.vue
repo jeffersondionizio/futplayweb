@@ -180,8 +180,8 @@ onMounted(carregar)
 <template>
   <section class="secao py-10">
     <header class="capa-lista">
-      <h1>Como organizar peladas de futebol</h1>
-      <p>Encontre jogos, confirme jogadores, acompanhe vagas e reúna o seu grupo de futebol amador.</p>
+      <h1>{{ t('peladas.h1') }}</h1>
+      <p>{{ t('peladas.lead') }}</p>
 
       <div v-if="sessao.autenticado" class="abas-lista" role="tablist">
         <button

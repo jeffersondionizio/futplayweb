@@ -72,6 +72,45 @@ caminho sem arquivo correspondente devolve o `index.html` com 200 e o Vue Router
 assume dali. Sem isso, abrir `/peladas` direto pela URL redirecionaria para a
 raiz e a rota se perderia.
 
+## Busca e idiomas
+
+O site existe em dois endereços por página: o português, que é o canônico, e o
+inglês sob `/en` com slug traduzido — `/sorteio` e `/en/team-generator` são a
+mesma página em línguas diferentes, e `hreflang` diz isso ao Google.
+
+Antes o idioma vivia só no `localStorage`, então havia uma URL só para os dois.
+Uma URL só pode ser indexada em um idioma: a tradução inteira era invisível para
+busca. Hoje o endereço manda — abrir `/en/tournaments` mostra inglês para
+qualquer visitante, inclusive o rastreador, que não tem `localStorage`.
+
+| Onde | O quê |
+|---|---|
+| `src/servicos/seo.ts` | Catálogo: caminho, título, descrição e trilha de cada rota nos dois idiomas, mais as perguntas da home |
+| `src/rotas/index.ts` | Cada rota registrada duas vezes — `/campeonatos` e `/en/tournaments` — e o guarda que tira o idioma da URL |
+| `scripts/gerar-seo.mjs` | Pós-build: um `.html` por rota pública com o `<head>` já preenchido, e o `sitemap.xml` |
+| `scripts/gerar-og.mjs` | Gera `public/og-futplay.png` à mão; o PNG é versionado |
+
+**Por que pré-gerar o HTML.** O Googlebot renderiza JavaScript e chegaria ao
+título certo sozinho, mas os robôs de prévia — WhatsApp, Facebook, LinkedIn, X —
+leem o HTML cru e vão embora. Com um documento só, todo link do site
+compartilhado mostrava o título da home. O build grava `dist/sorteio.html`,
+`dist/en/team-generator.html` e assim por diante, com título, descrição,
+canônico, `hreflang` e Open Graph próprios.
+
+O arquivo é plano (`sorteio.html`) e não uma pasta (`sorteio/index.html`) porque
+o Cloudflare responde 307 de `/sorteio` para `/sorteio/` quando existe a pasta —
+e aí todo link interno e todo canônico, que não levam barra final, ganhariam um
+salto de redirecionamento.
+
+Rotas de detalhe (`/peladas/{id}`) e telas de sessão não são pré-geradas: caem
+no `index.html` e o `aplicarSeo` do roteador corrige o `<head>` no cliente. As
+de sessão saem do índice por `robots.txt` e por `<meta name="robots">`.
+
+**`alias` não serve para isto.** Registrar `/en/tournaments` como alias de
+`/campeonatos` faz o roteador tratar os dois como o mesmo lugar: trocar de
+idioma era recusado como navegação redundante, a URL não mudava e só o `<head>`
+trocava de língua. São dois registros separados de propósito.
+
 ## Configuração do Firebase
 
 As chaves em `src/servicos/configuracao.ts` são públicas por natureza: a

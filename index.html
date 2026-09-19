@@ -4,24 +4,61 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#06aa48" />
-    <title>FutPlay: organize peladas, times e campeonatos</title>
-    <meta name="description" content="App para organizar pelada, sortear times equilibrados, marcar amistosos e criar campeonatos de futebol amador." />
+
+    <!--
+      Tudo entre os marcadores pertence a uma rota, e é reescrito no build.
+
+      `scripts/gerar-seo.mjs` grava um documento por rota pública dentro de
+      `dist/`, cada um com o título, a descrição, o canônico e o hreflang da
+      sua página. Neste arquivo-fonte o bloco é o da home em português, que é
+      também a reserva de qualquer caminho servido pelo fallback da SPA.
+    -->
+    <!-- seo:inicio -->
+    <title>FutPlay: App para Organizar Pelada, Times e Campeonatos</title>
+    <meta name="description" content="Organize peladas, sorteie times equilibrados, marque amistosos e acompanhe campeonatos de futebol amador no FutPlay. Grátis, no site e no app." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     <link rel="canonical" href="https://futplay.bibiprogramadortop.win/" />
+    <link rel="alternate" hreflang="pt-BR" href="https://futplay.bibiprogramadortop.win/" />
+    <link rel="alternate" hreflang="en" href="https://futplay.bibiprogramadortop.win/en" />
+    <link rel="alternate" hreflang="x-default" href="https://futplay.bibiprogramadortop.win/" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FutPlay" />
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:title" content="FutPlay: organize peladas, times e campeonatos" />
-    <meta property="og:description" content="Organize sua pelada, sorteie times equilibrados e acompanhe seu campeonato de futebol amador." />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:title" content="FutPlay: App para Organizar Pelada, Times e Campeonatos" />
+    <meta property="og:description" content="Organize peladas, sorteie times equilibrados, marque amistosos e acompanhe campeonatos de futebol amador no FutPlay." />
     <meta property="og:url" content="https://futplay.bibiprogramadortop.win/" />
-    <meta name="twitter:card" content="summary" />
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"FutPlay","applicationCategory":"SportsApplication","operatingSystem":"Android, Web","url":"https://futplay.bibiprogramadortop.win/","description":"App para organizar pelada, sortear times equilibrados, marcar amistosos e criar campeonatos de futebol amador.","featureList":"Organização de peladas, sorteio de times, campeonatos, amistosos e rankings","offers":{"@type":"Offer","price":"0","priceCurrency":"BRL"}}</script>
+    <meta property="og:image" content="https://futplay.bibiprogramadortop.win/og-futplay.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="FutPlay: App para Organizar Pelada, Times e Campeonatos" />
+    <meta name="twitter:description" content="Organize peladas, sorteie times equilibrados, marque amistosos e acompanhe campeonatos de futebol amador no FutPlay." />
+    <meta name="twitter:image" content="https://futplay.bibiprogramadortop.win/og-futplay.png" />
+    <!-- seo:fim -->
+
+    <!--
+      Identidade do site, igual em todas as rotas.
+
+      O `SoftwareApplication` declara categoria, plataforma e preço zero — é o
+      que permite ao resultado do Google mostrar o site como aplicativo, e não
+      como uma página qualquer. Nota de usuários não entra aqui: `aggregateRating`
+      inventado é motivo de penalidade, e o número real vive na Play Store.
+      O `SearchAction` habilita a busca por cidade dentro do próprio resultado.
+    -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"FutPlay","alternateName":"FutPlay - Peladas e Campeonatos","url":"https://futplay.bibiprogramadortop.win/","inLanguage":["pt-BR","en"],"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://futplay.bibiprogramadortop.win/peladas?cidade={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"FutPlay","applicationCategory":"SportsApplication","operatingSystem":"Android, Web","url":"https://futplay.bibiprogramadortop.win/","installUrl":"https://play.google.com/store/apps/details?id=com.futebol.cadepelada","image":"https://futplay.bibiprogramadortop.win/og-futplay.png","description":"App para organizar pelada, sortear times equilibrados, marcar amistosos e criar campeonatos de futebol amador.","featureList":"Organização de peladas, sorteio de times, campeonatos, amistosos e rankings","inLanguage":["pt-BR","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"BRL"}}</script>
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="app"></div>
-    <noscript><main><h1>FutPlay: app para organizar pelada e sortear times</h1><p>Organize jogos de futebol amador, monte times equilibrados, marque amistosos e acompanhe campeonatos.</p><p><a href="/sorteio">Sorteador de times de futebol</a> · <a href="/peladas">Peladas de futebol</a> · <a href="/campeonatos">Campeonatos amadores</a></p></main></noscript>
+    <noscript><main><h1>FutPlay: app para organizar pelada e sortear times</h1><p>Organize jogos de futebol amador, monte times equilibrados, marque amistosos e acompanhe campeonatos.</p><nav aria-label="Páginas do FutPlay"><ul><li><a href="/sorteio">Sorteador de times de futebol</a></li><li><a href="/peladas">Peladas de futebol perto de você</a></li><li><a href="/campeonatos">Campeonatos de futebol amador</a></li><li><a href="/amistosos">Amistosos entre clubes</a></li><li><a href="/clubes">Clubes de futebol amador</a></li><li><a href="/en">FutPlay in English</a></li></ul></nav></main></noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

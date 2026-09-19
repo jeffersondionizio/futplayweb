@@ -1,18 +1,32 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { IDIOMAS, salvarIdioma, type CodigoIdioma } from '../servicos/idioma'
+import { useRoute, useRouter } from 'vue-router'
+import { IDIOMAS, definirIdioma, type CodigoIdioma } from '../servicos/idioma'
+import { caminhoTraduzido } from '../servicos/seo'
 
 const { locale, t } = useI18n()
+const rota = useRoute()
+const roteador = useRouter()
 const aberto = ref(false)
 const raiz = ref<HTMLElement | null>(null)
 
 const atual = () => IDIOMAS.find((i) => i.codigo === locale.value) ?? IDIOMAS[0]
 
+/**
+ * Trocar de idioma é mudar de endereço.
+ *
+ * Antes isto só trocava as strings na tela e a URL continuava a mesma, então
+ * quem compartilhasse a página em inglês mandava um link que abria em
+ * português para o outro lado — e o Google via um endereço só para dois
+ * idiomas. Agora `/sorteio` e `/en/team-generator` são páginas distintas, e o
+ * seletor leva de uma para a outra mantendo busca e âncora.
+ */
 function escolher(codigo: CodigoIdioma) {
-  locale.value = codigo
-  salvarIdioma(codigo)
   aberto.value = false
+  definirIdioma(codigo)
+  const destino = caminhoTraduzido(rota.path, codigo)
+  if (destino !== rota.path) roteador.push({ path: destino, query: rota.query, hash: rota.hash })
 }
 
 // Fecha ao clicar fora: menu preso aberto atrapalha no celular.

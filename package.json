@@ -7,9 +7,11 @@
     "test:e2e": "playwright test",
     "test": "node --experimental-strip-types --test --experimental-test-coverage tests/campeonato.test.mjs tests/seo.test.mjs",
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vue-tsc -b && vite build && npm run seo",
     "preview": "npm run build && wrangler dev",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "seo": "node --experimental-strip-types scripts/gerar-seo.mjs",
+    "og": "node scripts/gerar-og.mjs"
   },
   "dependencies": {
     "firebase": "^12.19.0",

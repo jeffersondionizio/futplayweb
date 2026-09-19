@@ -1,9 +1,38 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { URL_APP_ANDROID } from '../servicos/configuracao'
+import { PERGUNTAS, caminhoNoIdioma, idiomaDoCaminho } from '../servicos/seo'
 import '../estilo/inicio.css'
 
 const { t } = useI18n()
+const rota = useRoute()
+
+const idioma = computed(() => idiomaDoCaminho(rota.path))
+
+/**
+ * Entradas para as páginas públicas, com o texto que a busca usa.
+ *
+ * O herói vende o aplicativo, mas quem chega por "sorteador de times" precisa
+ * de um caminho visível para a ferramenta — e o Google precisa de âncoras
+ * descritivas saindo da home, que é a página com mais autoridade do site.
+ */
+const atalhos = computed(() =>
+  (['sorteio', 'peladas', 'campeonatos', 'amistosos'] as const).map((chave) => ({
+    chave,
+    para: caminhoNoIdioma(chave, idioma.value),
+  })),
+)
+
+/**
+ * As perguntas vêm do catálogo de SEO, não do i18n.
+ *
+ * É o mesmo texto que vira `FAQPage` no documento — marcar uma resposta que a
+ * página não mostra é o tipo de divergência que o Google ignora quando é
+ * benigna e pune quando não é.
+ */
+const perguntas = computed(() => PERGUNTAS[idioma.value])
 
 const recursos = [
   { chave: 'sorteio', icone: 'M7 4h10M7 4a3 3 0 0 1-3 3m3-3v13m10-13a3 3 0 0 0 3 3m-3-3v13M4 7v4a8 8 0 0 0 16 0V7' },
@@ -73,6 +102,44 @@ const passos = ['um', 'dois', 'tres'] as const
         <h3 class="mt-4 text-lg font-bold">{{ t(`home.recursos.${r.chave}.titulo`) }}</h3>
         <p class="mt-1 text-sm text-[var(--color-tinta-suave)]">{{ t(`home.recursos.${r.chave}.texto`) }}</p>
       </article>
+    </div>
+  </section>
+
+  <!-- atalhos para as páginas públicas -->
+  <section class="inicio-atalhos secao py-16">
+    <h2 class="text-center text-3xl font-extrabold">{{ t('explorar.titulo') }}</h2>
+    <p class="mt-2 text-center text-[var(--color-tinta-suave)]">{{ t('explorar.texto') }}</p>
+    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      <RouterLink
+        v-for="a in atalhos"
+        :key="a.chave"
+        :to="a.para"
+        class="atalho-card painel flex items-start gap-4 p-6"
+      >
+        <span aria-hidden="true" class="atalho-seta">→</span>
+        <span>
+          <strong class="block text-lg font-bold">{{ t(`explorar.${a.chave}`) }}</strong>
+          <span class="mt-1 block text-sm text-[var(--color-tinta-suave)]">{{ t(`explorar.${a.chave}Texto`) }}</span>
+        </span>
+      </RouterLink>
+    </div>
+  </section>
+
+  <!--
+    As perguntas são conteúdo, não decoração.
+
+    Cada uma responde a uma busca inteira ("como sortear times de futebol",
+    "o FutPlay é grátis") que a home não respondia em lugar nenhum, e o mesmo
+    texto alimenta o FAQPage que `scripts/gerar-seo.mjs` grava no documento —
+    o structured data precisa bater com o que está visível na página.
+  -->
+  <section class="inicio-faq secao py-16">
+    <h2 class="text-center text-3xl font-extrabold">{{ t('faq.titulo') }}</h2>
+    <div class="mt-10 grid max-w-3xl gap-4">
+      <details v-for="p in perguntas" :key="p.pergunta" class="faq-item painel p-5">
+        <summary class="faq-pergunta cursor-pointer font-bold">{{ p.pergunta }}</summary>
+        <p class="mt-3 text-sm leading-relaxed text-[var(--color-tinta-suave)]">{{ p.resposta }}</p>
+      </details>
     </div>
   </section>
 

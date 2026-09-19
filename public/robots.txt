@@ -1,3 +1,21 @@
+# Tudo que responde a uma busca é aberto; o que exige sessão, não.
+# Indexar uma tela de login ou de formulário gasta rastreamento e coloca no
+# resultado uma página que não responde a pergunta nenhuma.
 User-agent: *
 Allow: /
+Disallow: /entrar
+Disallow: /cadastro
+Disallow: /conta
+Disallow: /agenda
+Disallow: /peladas/nova
+Disallow: /campeonatos/novo
+Disallow: /amistosos/novo
+Disallow: /en/sign-in
+Disallow: /en/sign-up
+Disallow: /en/account
+Disallow: /en/schedule
+Disallow: /en/pickup-games/new
+Disallow: /en/tournaments/new
+Disallow: /en/friendlies/new
+
 Sitemap: https://futplay.bibiprogramadortop.win/sitemap.xml

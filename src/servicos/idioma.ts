@@ -4,9 +4,14 @@
  * A escolha fica no localStorage. Quem nunca escolheu cai no pt-BR mesmo que o
  * navegador esteja em outro idioma — o público do FutPlay é brasileiro, e
  * adivinhar pelo navegador erraria para quem usa o sistema em inglês aqui.
+ *
+ * O endereço, porém, manda mais que a preferência salva: abrir `/en/tournaments`
+ * mostra inglês para qualquer visitante. É o que permite indexar as duas
+ * versões — e o rastreador do Google não tem localStorage para consultar.
  */
 
 import { createI18n } from 'vue-i18n'
+import { idiomaDoCaminho } from './seo'
 
 export const IDIOMAS = [
   { codigo: 'pt-BR', rotulo: 'Português', bandeira: '🇧🇷' },
@@ -34,6 +39,25 @@ export function salvarIdioma(codigo: CodigoIdioma) {
     /* segue com o idioma em memória */
   }
   document.documentElement.lang = codigo
+}
+
+/** Idioma da primeira renderização: o da URL aberta, com a preferência salva como reserva. */
+export function idiomaInicial(): CodigoIdioma {
+  if (typeof location === 'undefined') return 'pt-BR'
+  return idiomaDoCaminho(location.pathname) === 'en' ? 'en' : idiomaSalvo()
+}
+
+/**
+ * Troca o idioma em uso.
+ *
+ * `persistir: false` é o caso do roteador, que só está refletindo o endereço
+ * aberto: uma visita a `/en` vinda de um link não deve reescrever a escolha de
+ * quem usa o site em português.
+ */
+export function definirIdioma(codigo: CodigoIdioma, { persistir = true } = {}) {
+  if (i18n.global.locale.value !== codigo) i18n.global.locale.value = codigo
+  if (typeof document !== 'undefined') document.documentElement.lang = codigo
+  if (persistir) salvarIdioma(codigo)
 }
 
 const ptBR = {
@@ -95,6 +119,19 @@ const ptBR = {
     mesmaContaTexto:
       'O site e o app compartilham a mesma conta. Entre com o Google e seus grupos, clubes e campeonatos já estarão aqui.',
   },
+  explorar: {
+    titulo: 'Comece por aqui',
+    texto: 'As quatro ferramentas do FutPlay, abertas e sem conta para olhar.',
+    sorteio: 'Sorteador de times de futebol',
+    sorteioTexto: 'Divida o grupo em times equilibrados em segundos.',
+    peladas: 'Peladas perto de você',
+    peladasTexto: 'Procure por cidade e peça para entrar no grupo.',
+    campeonatos: 'Campeonatos amadores',
+    campeonatosTexto: 'Grupos, mata-mata, tabela e artilharia.',
+    amistosos: 'Amistosos entre clubes',
+    amistososTexto: 'Desafie um time ou publique um desafio aberto.',
+  },
+  faq: { titulo: 'Perguntas frequentes' },
   entrar: {
     titulo: 'Entrar no FutPlay',
     texto: 'Use sua conta Google. É a mesma do aplicativo.',
@@ -114,7 +151,30 @@ const ptBR = {
     salvar: 'Salvar e continuar',
     salvando: 'Salvando…',
   },
+  sorteio: {
+    selo: 'Ferramenta do organizador',
+    h1: 'Sorteador de times de futebol grátis',
+    lead: 'Cole um jogador por linha, defina o tamanho das equipes e faça o sorteio para sua pelada. Os nomes repetidos são removidos; quem sobrar forma o próximo time.',
+    jogadores: 'Jogadores',
+    exemplo: 'Ana\nBruno\nCarlos',
+    meta: 'Meta de jogadores por time',
+    porTime: '{n} jogadores',
+    sortear: 'Sortear times',
+    resultado: 'Resultado',
+    copiar: 'Copiar',
+    vazio: 'O resultado aparecerá aqui.',
+    time: 'Time {n}',
+    minimo: 'Informe pelo menos dois jogadores.',
+    semCopiar: 'Não foi possível copiar. Selecione o resultado manualmente.',
+    cabecalhoCopia: 'FutPlay — sorteio de times',
+    comoTitulo: 'Como sortear times equilibrados?',
+    comoTexto: 'Distribua goleiros e jogadores que atuam na mesma posição antes do sorteio. Depois, use a ferramenta para dividir os demais nomes e ajuste somente se houver um desequilíbrio evidente.',
+    peladaTitulo: 'Sorteio de times para pelada',
+    peladaTexto: 'O resultado pode ser copiado e enviado ao grupo. Para guardar jogadores, organizar jogos e acompanhar resultados, use o FutPlay.',
+  },
   peladas: {
+    h1: 'Como organizar peladas de futebol',
+    lead: 'Encontre jogos, confirme jogadores, acompanhe vagas e reúna o seu grupo de futebol amador.',
     titulo: 'Peladas',
     proximas: 'Peladas próximas',
     minhas: 'Minhas peladas',
@@ -134,6 +194,8 @@ const ptBR = {
     gratis: 'Grátis',
   },
   campeonatos: {
+    h1: 'Gerenciador de campeonatos de futebol amador',
+    lead: 'Crie competições, acompanhe jogos, fases, tabelas e classificações do seu campeonato.',
     titulo: 'Campeonatos',
     meus: 'Meus campeonatos',
     descobrir: 'Descobrir',
@@ -283,8 +345,8 @@ const en: typeof ptBR = {
     campeonatos: 'Tournaments',
     amistosos: 'Friendlies',
     clubes: 'Clubs',
-    agenda: 'Agenda',
-    sorteio: 'Draw',
+    agenda: 'Schedule',
+    sorteio: 'Team draw',
     entrar: 'Sign in',
     sair: 'Sign out',
     minhaConta: 'My account',
@@ -334,6 +396,19 @@ const en: typeof ptBR = {
     mesmaContaTexto:
       'The site and the app share one account. Sign in with Google and your groups, clubs and tournaments are already here.',
   },
+  explorar: {
+    titulo: 'Start here',
+    texto: 'The four FutPlay tools, open to browse without an account.',
+    sorteio: 'Random soccer team generator',
+    sorteioTexto: 'Split your group into balanced teams in seconds.',
+    peladas: 'Pickup games near you',
+    peladasTexto: 'Search by city and ask to join the group.',
+    campeonatos: 'Amateur tournaments',
+    campeonatosTexto: 'Groups, knockout, standings and top scorers.',
+    amistosos: 'Club friendlies',
+    amistososTexto: 'Challenge a team or post an open challenge.',
+  },
+  faq: { titulo: 'Frequently asked questions' },
   entrar: {
     titulo: 'Sign in to FutPlay',
     texto: 'Use your Google account — the same one as the app.',
@@ -353,7 +428,30 @@ const en: typeof ptBR = {
     salvar: 'Save and continue',
     salvando: 'Saving…',
   },
+  sorteio: {
+    selo: 'Organizer tool',
+    h1: 'Free random soccer team generator',
+    lead: 'Paste one player per line, set how many per side and draw the teams for your game. Repeated names are dropped; whoever is left over forms the next team.',
+    jogadores: 'Players',
+    exemplo: 'Anna\nBruno\nCharlie',
+    meta: 'Target players per team',
+    porTime: '{n} players',
+    sortear: 'Draw teams',
+    resultado: 'Result',
+    copiar: 'Copy',
+    vazio: 'The result will show up here.',
+    time: 'Team {n}',
+    minimo: 'Enter at least two players.',
+    semCopiar: 'Could not copy. Select the result manually.',
+    cabecalhoCopia: 'FutPlay — team draw',
+    comoTitulo: 'How do you draw balanced teams?',
+    comoTexto: 'Split the goalkeepers and the players who share a position before drawing. Then use the tool to divide the remaining names, and only adjust if there is an obvious imbalance.',
+    peladaTitulo: 'Team draw for pickup games',
+    peladaTexto: 'The result can be copied and sent to the group. To keep your players, organize matches and follow results, use FutPlay.',
+  },
   peladas: {
+    h1: 'How to organize pickup soccer games',
+    lead: 'Find matches, confirm players, track open spots and bring your amateur football group together.',
     titulo: 'Pickup games',
     proximas: 'Games near you',
     minhas: 'My games',
@@ -373,6 +471,8 @@ const en: typeof ptBR = {
     gratis: 'Free',
   },
   campeonatos: {
+    h1: 'Amateur football tournament manager',
+    lead: 'Create competitions and follow the fixtures, stages, tables and standings of your tournament.',
     titulo: 'Tournaments',
     meus: 'My tournaments',
     descobrir: 'Discover',
@@ -516,7 +616,7 @@ const en: typeof ptBR = {
 
 export const i18n = createI18n({
   legacy: false,
-  locale: idiomaSalvo(),
+  locale: idiomaInicial(),
   fallbackLocale: 'pt-BR',
   messages: { 'pt-BR': ptBR, en },
 })

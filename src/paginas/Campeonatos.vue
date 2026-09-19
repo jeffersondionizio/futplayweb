@@ -61,8 +61,8 @@ onMounted(carregar)
     <header class="capa-lista">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Gerenciador de campeonatos de futebol amador</h1>
-          <p>Crie competições, acompanhe jogos, fases, tabelas e classificações do seu campeonato.</p>
+          <h1>{{ t('campeonatos.h1') }}</h1>
+          <p>{{ t('campeonatos.lead') }}</p>
         </div>
         <RouterLink v-if="sessao.autenticado" :to="{ name: 'criar-campeonato' }" class="botao-primario shrink-0">
           + {{ t('criar.campeonato') }}

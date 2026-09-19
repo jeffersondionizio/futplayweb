@@ -41,3 +41,17 @@
   .instalar-mobile { position: fixed; z-index: 35; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .8rem 1rem calc(.8rem + env(safe-area-inset-bottom)); background: #fffffff5; backdrop-filter: blur(12px); border-top: 1px solid #dce8df; box-shadow: 0 -4px 20px #0a34200d; }
   .instalar-mobile strong { display: block; color: #076b3b; font-size: .95rem; }.instalar-mobile div > span { display: block; font-size: .65rem; color: var(--color-tinta-fraca); }.instalar-mobile .botao-primario { font-size: .8rem; padding: .6rem .9rem; }
 }
+
+/* Atalhos e perguntas: conteúdo que a busca lê, com o mesmo peso visual dos cartões de recurso. */
+.inicio-atalhos > h2, .inicio-faq > h2 { text-align: left; font-size: clamp(1.6rem, 3vw, 2rem); letter-spacing: -.04em; }
+.inicio-atalhos > p { text-align: left; font-size: .95rem; }
+.atalho-card { border-radius: 16px; box-shadow: none; border-left: 3px solid #d5e9dc; transition: border-color .18s, background .18s; }
+.atalho-card:hover { border-left-color: var(--color-marca-vivo); background: var(--color-marca-claro); }
+.atalho-seta { color: var(--color-marca); font-size: 1.15rem; line-height: 1.6; }
+.atalho-card strong { letter-spacing: -.02em; }
+.faq-item { border-radius: 14px; box-shadow: none; }
+.faq-item + .faq-item { margin-top: 0; }
+.faq-pergunta { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: .98rem; letter-spacing: -.02em; }
+.faq-pergunta::-webkit-details-marker { display: none; }
+.faq-pergunta::after { content: '+'; color: var(--color-marca); font-size: 1.35rem; line-height: 1; }
+.faq-item[open] .faq-pergunta::after { content: '–'; }

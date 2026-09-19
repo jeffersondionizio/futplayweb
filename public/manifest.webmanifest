@@ -1,0 +1,16 @@
+{
+  "name": "FutPlay: peladas, times e campeonatos",
+  "short_name": "FutPlay",
+  "description": "Organize peladas, sorteie times equilibrados, marque amistosos e acompanhe campeonatos de futebol amador.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#06aa48",
+  "categories": ["sports"],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/og-futplay.png", "sizes": "1200x630", "type": "image/png" }
+  ]
+}
